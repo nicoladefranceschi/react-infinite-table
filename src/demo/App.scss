@@ -1,0 +1,32 @@
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  padding: 30px;
+  background: #eee;
+}
+
+.example-table {
+  background: white;
+  width: 600px;
+}
+
+.example-table td {
+  width: 90px;
+  min-width: 90px;
+  max-width: 90px;
+  background-color: #fff;
+  border: 1px solid #ccc;
+}
+
+.example-table.react-infinite-table td.is-fixed-left--2 {
+  left: 90px;
+}
+
+
+table tbody {
+  pointer-events: unset !important;
+}

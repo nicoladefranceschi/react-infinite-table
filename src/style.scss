@@ -1,0 +1,94 @@
+.react-infinite-table {
+  position: relative;
+  overflow: auto;
+  max-height: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  z-index: 1;
+
+  table {
+    border-spacing: 0;
+    table-layout: fixed;
+    box-sizing: border-box;
+  }
+
+  td,
+  th {
+    box-sizing: border-box;
+
+    &.is-fixed-left,
+    &.is-fixed-right {
+      // sass-lint:disable-block no-duplicate-properties
+      position: -webkit-sticky;
+      position: sticky;
+      left: 0;
+    }
+  }
+
+  th {
+    z-index: 2;
+
+    &:not(.is-fixed-right) {
+      .et-header-resize-area {
+        right: 0;
+      }
+    }
+
+    &.is-fixed-right {
+      .et-header-resize-area {
+        left: 0;
+      }
+    }
+  }
+
+  td.is-fixed-left,
+  td.is-fixed-right {
+    z-index: 3;
+  }
+
+  th.is-fixed-left,
+  th.is-fixed-right {
+    z-index: 4;
+  }
+
+  th.is-sortable {
+    cursor: pointer;
+  }
+
+  thead {
+    // sass-lint:disable-block no-duplicate-properties
+    position: -webkit-sticky;
+    position: sticky;
+
+    top: 0;
+    z-index: 2;
+    box-sizing: border-box;
+  }
+
+  tbody {
+    box-sizing: border-box;
+  }
+
+  tfoot {
+    // sass-lint:disable-block no-duplicate-properties
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+    z-index: 2;
+    box-sizing: border-box;
+  }
+
+  &.et-unselectable {
+    user-select: none;
+  }
+
+  .et-header-resize-area {
+    cursor: col-resize;
+
+    width: 10px;
+    height: 100%;
+
+    position: absolute;
+    top: 0;
+  }
+}
