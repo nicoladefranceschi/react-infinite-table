@@ -21,7 +21,7 @@ function cellRenderer({
   style
 }) {
   return <td key={key} className={className} style={style}>
-    R:{rowIndex} C:{columnIndex}
+    R:{rowData.i} C:{columnIndex}
   </td>
 }
 
@@ -108,14 +108,31 @@ const _columns = [
 function createAllRows() {
   const rows = []
   for (let index = 0; index < N_ROWS; index++) {
-    rows.push({})  
+    rows.push({i: rows.length})
   }
   return rows
+}
+
+function recreateRows (infiniteScrolling, displayBottomUpwards) {
+  let rows
+  if(infiniteScrolling) {
+    rows = []
+    for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
+      rows.push({i: rows.length})  
+    }
+  }else{
+    rows = createAllRows()
+  }
+  if(displayBottomUpwards) {
+    rows.reverse()
+  }
+  return rows;
 }
 
 
 class App extends React.Component {
   state = {
+    displayBottomUpwards: false,
     infiniteScrolling: false,
     rows: createAllRows(),
     isInfiniteLoading: false
@@ -125,17 +142,21 @@ class App extends React.Component {
     clearTimeout(this._loadRowsTimeout)
   }
 
+  
+
+  setDisplayBottomUpwards = displayBottomUpwards => {
+    clearTimeout(this._loadRowsTimeout)
+    const rows = recreateRows(this.state.infiniteScrolling, displayBottomUpwards)
+    this.setState({
+      displayBottomUpwards,
+      rows: rows,
+      isInfiniteLoading: false
+    })
+  }
+
   onInfiniteScrolling = infiniteScrolling => {
     clearTimeout(this._loadRowsTimeout)
-    let rows
-    if(infiniteScrolling) {
-      rows = []
-      for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
-        rows.push({})  
-      }
-    }else{
-      rows = createAllRows()
-    }
+    const rows = recreateRows(infiniteScrolling, this.state.displayBottomUpwards)
     this.setState({
       infiniteScrolling,
       rows: rows,
@@ -149,10 +170,20 @@ class App extends React.Component {
       isInfiniteLoading: true
     })
     this._loadRowsTimeout = setTimeout(() => {
-      const rows = [...this.state.rows]
-      for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
-        rows.push({})  
+      const displayBottomUpwards = this.state.displayBottomUpwards
+      let rows = [...this.state.rows]
+      if(displayBottomUpwards){
+        rows.reverse()
       }
+
+      for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
+        rows.push({i: rows.length})  
+      }
+
+      if(displayBottomUpwards){
+        rows.reverse()
+      }
+
       this.setState({
         rows: rows,
         isInfiniteLoading: false
@@ -161,12 +192,12 @@ class App extends React.Component {
   }
 
   render() {
-    const {infiniteScrolling, rows} = this.state
+    const {infiniteScrolling, displayBottomUpwards, rows} = this.state
 
     return (
       <div className="App">
         <div className="settings">
-          <div>
+        <div>
             <input 
               type="checkbox" 
               id="infiniteScrolling" 
@@ -174,6 +205,15 @@ class App extends React.Component {
               onChange={e => this.onInfiniteScrolling(e.target.checked)}
             />
             <label htmlFor="infiniteScrolling"> Infinite scrolling</label>
+          </div>
+          <div>
+            <input 
+              type="checkbox" 
+              id="displayBottomUpwards" 
+              value={displayBottomUpwards} 
+              onChange={e => this.setDisplayBottomUpwards(e.target.checked)}
+            />
+            <label htmlFor="displayBottomUpwards"> Display Bottom Upwards</label>
           </div>
         </div>
         <Table 
@@ -189,6 +229,7 @@ class App extends React.Component {
           isInfiniteLoading={infiniteScrolling ? this.state.isInfiniteLoading : undefined}
           onInfiniteLoad={infiniteScrolling ? this.onInfiniteLoad : undefined}
           getLoadingSpinner={() => <div>Loading...</div>}
+          displayBottomUpwards={displayBottomUpwards}
         >
         </Table>
       </div>

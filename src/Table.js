@@ -49,8 +49,6 @@ export class Table extends React.Component {
   constructor(props) {
     super(props);
 
-    // Properties currently used but which may be
-    // refactored away in the future.
     this.shouldAttachToBottom = props.displayBottomUpwards;
 
     this.state = this.recomputeInternalStateFromProps(props);
@@ -119,6 +117,11 @@ export class Table extends React.Component {
 
   componentWillReceiveProps(nextProps) {
     var newState = this.recomputeInternalStateFromProps(nextProps);
+
+    if(this.props.displayBottomUpwards !== nextProps.displayBottomUpwards) {
+      this.shouldAttachToBottom = nextProps.displayBottomUpwards;
+    }
+
     this.setState(newState);
   }
 
@@ -246,11 +249,14 @@ export class Table extends React.Component {
 
   renderRows(displayIndexStart, displayIndexEnd) {
     const rows = []
+    const rowsData = this.props.rows
+
     for(let rowIndex = displayIndexStart; rowIndex <= displayIndexEnd; rowIndex++) {
       const rowHeight = typeof this.props.rowHeight === 'number' ? this.props.rowHeight : this.props.rowHeight(rowIndex)
 
-      const rowData = this.props.rows
       let columnOffset = 0
+
+      const rowData = rowsData[rowIndex]
 
       const row = (
         <tr key={rowIndex} 
