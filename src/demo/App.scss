@@ -12,6 +12,7 @@ body {
 .example-table {
   background: white;
   width: 600px;
+  max-width: calc(100vw - 60px);
 
   border-left: 1px solid #cccc;
   border-top: 1px solid #cccc;

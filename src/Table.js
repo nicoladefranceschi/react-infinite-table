@@ -431,37 +431,42 @@ export class Table extends React.Component {
     return (
       <div
         className={classNames(
-          'react-infinite-table',
+          "react-infinite-table",
           this.props.className
         )}
-        ref={c => { this.scrollable = c }}
-        style={this.buildScrollableStyle()}
-        onScroll={this.handleScroll}
-      >
-        <table>
-          {this.props.headerCount > 0 && <thead>
-            {this.renderHeaderRows()}
-          </thead>}
-          <tbody
-            ref={c => { this.smoothScrollingWrapper = c }}
-            style={infiniteScrollStyles}
-          >
-            <tr
-              ref={c => { this.topSpacer = c }}
-              style={infiniteHelpers.buildHeightStyle(topSpacerHeight)}
-            />
-            {this.props.displayBottomUpwards && loadingSpinner}
-            {displayables}
-            {!this.props.displayBottomUpwards && loadingSpinner}
-            <tr
-              ref={c => { this.bottomSpacer = c }}
-              style={infiniteHelpers.buildHeightStyle(bottomSpacerHeight)}
-            />
-          </tbody>
-          {this.props.footerCount > 0 && <tfoot>
-            {this.renderFooterRows()}
-          </tfoot>}
-        </table>
+      >      
+        <div
+          className="react-infinite-table-wrapper"
+          ref={c => { this.scrollable = c }}
+          style={this.buildScrollableStyle()}
+          onScroll={this.handleScroll}
+        >
+          <div className="react-infinite-table-scroll-smoother" />
+          <table>
+            {this.props.headerCount > 0 && <thead>
+              {this.renderHeaderRows()}
+            </thead>}
+            <tbody
+              ref={c => { this.smoothScrollingWrapper = c }}
+              style={infiniteScrollStyles}
+            >
+              <tr
+                ref={c => { this.topSpacer = c }}
+                style={infiniteHelpers.buildHeightStyle(topSpacerHeight)}
+              />
+              {this.props.displayBottomUpwards && loadingSpinner}
+              {displayables}
+              {!this.props.displayBottomUpwards && loadingSpinner}
+              <tr
+                ref={c => { this.bottomSpacer = c }}
+                style={infiniteHelpers.buildHeightStyle(bottomSpacerHeight)}
+              />
+            </tbody>
+            {this.props.footerCount > 0 && <tfoot>
+              {this.renderFooterRows()}
+            </tfoot>}
+          </table>
+        </div>
       </div>
     );
   }
