@@ -7,12 +7,9 @@ import { Table } from '../index.js'
 
 const ROW_HEIGHT = 30;
 
-const N_ROWS = 10**5
+const N_ROWS = 10**3
+const INFINITE_SCROLLING_N_ROWS = 30
 
-const _rows = []
-for (let index = 0; index < N_ROWS; index++) {
-  _rows.push({})  
-}
 
 function cellRenderer({
   key,
@@ -108,22 +105,95 @@ const _columns = [
   }
 ]
 
-function App() {
-  return (
-    <div className="App">
-      <Table 
-        className="example-table"
-        height={200} 
-        rowHeight={ROW_HEIGHT} 
-        rows={_rows}
-        columns={_columns}
-        fixedColumnsLeftCount={2}
-        headerCount={1}
-        footerCount={1}
-      >
-      </Table>
-    </div>
-  );
+function createAllRows() {
+  const rows = []
+  for (let index = 0; index < N_ROWS; index++) {
+    rows.push({})  
+  }
+  return rows
+}
+
+
+class App extends React.Component {
+  state = {
+    infiniteScrolling: false,
+    rows: createAllRows(),
+    isInfiniteLoading: false
+  }
+
+  componentWillUnmount(){
+    clearTimeout(this._loadRowsTimeout)
+  }
+
+  onInfiniteScrolling = infiniteScrolling => {
+    clearTimeout(this._loadRowsTimeout)
+    let rows
+    if(infiniteScrolling) {
+      rows = []
+      for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
+        rows.push({})  
+      }
+    }else{
+      rows = createAllRows()
+    }
+    this.setState({
+      infiniteScrolling,
+      rows: rows,
+      isInfiniteLoading: false
+    })
+  }
+
+  onInfiniteLoad = () => {
+    console.log('Loading new rows!')
+    this.setState({
+      isInfiniteLoading: true
+    })
+    this._loadRowsTimeout = setTimeout(() => {
+      const rows = [...this.state.rows]
+      for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
+        rows.push({})  
+      }
+      this.setState({
+        rows: rows,
+        isInfiniteLoading: false
+      })
+    }, 2000);
+  }
+
+  render() {
+    const {infiniteScrolling, rows} = this.state
+
+    return (
+      <div className="App">
+        <div className="settings">
+          <div>
+            <input 
+              type="checkbox" 
+              id="infiniteScrolling" 
+              value={infiniteScrolling} 
+              onChange={e => this.onInfiniteScrolling(e.target.checked)}
+            />
+            <label htmlFor="infiniteScrolling"> Infinite scrolling</label>
+          </div>
+        </div>
+        <Table 
+          className="example-table"
+          height={200} 
+          rowHeight={ROW_HEIGHT} 
+          rows={rows}
+          columns={_columns}
+          fixedColumnsLeftCount={2}
+          headerCount={1}
+          footerCount={1}
+          infiniteLoadBeginEdgeOffset={infiniteScrolling ? 150 : undefined}
+          isInfiniteLoading={infiniteScrolling ? this.state.isInfiniteLoading : undefined}
+          onInfiniteLoad={infiniteScrolling ? this.onInfiniteLoad : undefined}
+          getLoadingSpinner={() => <div>Loading...</div>}
+        >
+        </Table>
+      </div>
+    );
+  }
 }
 
 export default App;
