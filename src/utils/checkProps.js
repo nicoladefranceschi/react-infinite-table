@@ -9,26 +9,17 @@ var _isFinite = require('lodash.isfinite');
 
 module.exports = function(props) {
   var rie = 'Invariant Violation: ';
-  if (!(props.containerHeight || props.useWindowAsScrollContainer)) {
+  if (!(props.height)) {
     throw new Error(
       rie +
-        'Either containerHeight or useWindowAsScrollContainer must be provided.'
+        'height must be provided.'
     );
   }
 
-  if (!(_isFinite(props.elementHeight) || Array.isArray(props.elementHeight))) {
+  if (!(_isFinite(props.rowHeight) || typeof props.rowHeight === 'function')) {
     throw new Error(
       rie +
-        'You must provide either a number or an array of numbers as the elementHeight.'
+        'You must provide either a number or a function as the rowHeight.'
     );
-  }
-
-  if (Array.isArray(props.elementHeight)) {
-    if (React.Children.count(props.children) !== props.elementHeight.length) {
-      throw new Error(
-        rie +
-          'There must be as many values provided in the elementHeight prop as there are children.'
-      );
-    }
-  }
+  }  
 };

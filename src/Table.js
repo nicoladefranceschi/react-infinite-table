@@ -5,7 +5,6 @@ var PropTypes = require('prop-types');
 
 var window = require('./utils/window');
 
-var scaleEnum = require('./utils/scaleEnum');
 var infiniteHelpers = require('./utils/infiniteHelpers');
 var _isFinite = require('lodash.isfinite');
 
@@ -14,45 +13,27 @@ var checkProps = require('./utils/checkProps');
 export class Table extends React.Component {
 
   static propTypes = {
-    children: PropTypes.any,
+    height: PropTypes.number.isRequired,
+    rowHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.func]).isRequired,
+    overscanSize: PropTypes.number,
+    rows: PropTypes.array.isRequired,
+    columns: PropTypes.arrayOf(PropTypes.shape({
+      cellRenderer: PropTypes.func,
+      headerRenderer: PropTypes.func,
+      footerRenderer: PropTypes.func,
+      width: PropTypes.number.isRequired
+    })).isRequired,
+    headerCount: PropTypes.number,
+    footerCount: PropTypes.number,    
+    fixedColumnsLeftCount: PropTypes.number,
 
-    handleScroll: PropTypes.func,
+    //headerRowRenderer
 
-    // preloadBatchSize causes updates only to
-    // happen each preloadBatchSize pixels of scrolling.
-    // Set a larger number to cause fewer updates to the
-    // element list.
-    preloadBatchSize: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.shape({
-        type: PropTypes.oneOf(['containerHeightScaleFactor']).isRequired,
-        amount: PropTypes.number.isRequired
-      })
-    ]),
-    // preloadAdditionalHeight determines how much of the
-    // list above and below the container is preloaded even
-    // when it is not currently visible to the user. In the
-    // regular scroll implementation, preloadAdditionalHeight
-    // is equal to the entire height of the list.
-    preloadAdditionalHeight: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.shape({
-        type: PropTypes.oneOf(['containerHeightScaleFactor']).isRequired,
-        amount: PropTypes.number.isRequired
-      })
-    ]), // page to screen ratio
+    //TODO: check??
 
-    // The provided elementHeight can be either
-    //  1. a constant: all elements are the same height
-    //  2. an array containing the height of each element
-    elementHeight: PropTypes.oneOfType([
-      PropTypes.number,
-      PropTypes.arrayOf(PropTypes.number)
-    ]).isRequired,
-    // This is the total height of the visible window. One
-    // of
-    containerHeight: PropTypes.number,
-    useWindowAsScrollContainer: PropTypes.bool,
+    // handleScroll: PropTypes.func,
+
+    // useWindowAsScrollContainer: PropTypes.bool,
 
     displayBottomUpwards: PropTypes.bool.isRequired,
 
@@ -64,23 +45,12 @@ export class Table extends React.Component {
     timeScrollStateLastsForAfterUserScrolls: PropTypes.number,
 
     className: PropTypes.string,
-
-    styles: PropTypes.shape({
-      scrollableStyle: PropTypes.object
-    }).isRequired
   };
 
-  static containerHeightScaleFactor(factor) {
-    if (!_isFinite(factor)) {
-      throw new Error('The scale factor must be a number.');
-    }
-    return {
-      type: scaleEnum.CONTAINER_HEIGHT_SCALE_FACTOR,
-      amount: factor
-    };
-  }
 
   static defaultProps = {
+    overscanSize: 300,
+
     handleScroll: () => {},
 
     useWindowAsScrollContainer: false,
@@ -92,10 +62,6 @@ export class Table extends React.Component {
 
     isInfiniteLoading: false,
     timeScrollStateLastsForAfterUserScrolls: 150,
-
-    className: '',
-
-    styles: {}
   };
 
   constructor(props) {
@@ -104,7 +70,6 @@ export class Table extends React.Component {
 
     // Properties currently used but which may be
     // refactored away in the future.
-    this.computedProps = nextInternalState.computedProps;
     this.utils = nextInternalState.utils;
     this.shouldAttachToBottom = props.displayBottomUpwards;
 
@@ -165,20 +130,14 @@ export class Table extends React.Component {
           this.scrollable.scrollTop = top;
         }
       };
-      utilities.scrollShouldBeIgnored = event =>
-        event.target !== this.scrollable;
+      utilities.scrollShouldBeIgnored = event => event.target !== this.scrollable;
 
       utilities.buildScrollableStyle = () => {
-        return Object.assign(
-          {},
-          {
-            height: this.computedProps.containerHeight,
-            overflowX: 'scroll',
-            overflowY: 'scroll',
-            WebkitOverflowScrolling: 'touch'
-          },
-          this.computedProps.styles.scrollableStyle || {}
-        );
+        return {
+          height: props.height,
+          overflow: 'auto',
+          WebkitOverflowScrolling: 'touch'
+        }
       };
     }
     return utilities;
@@ -188,36 +147,31 @@ export class Table extends React.Component {
     props
   ) => {
     checkProps(props);
-    var computedProps = infiniteHelpers.generateComputedProps(props);
     var utils = this.generateComputedUtilityFunctions(
       props
     );
 
     var newState = {};
 
-    newState.numberOfChildren = React.Children.count(computedProps.children);
     newState.infiniteComputer = infiniteHelpers.createInfiniteComputer(
-      computedProps.elementHeight,
-      computedProps.children
+      props.rows.length,
+      props.rowHeight
     );
 
-    if (computedProps.isInfiniteLoading !== undefined) {
-      newState.isInfiniteLoading = computedProps.isInfiniteLoading;
+    if (props.isInfiniteLoading !== undefined) {
+      newState.isInfiniteLoading = props.isInfiniteLoading;
     }
 
-    newState.preloadBatchSize = computedProps.preloadBatchSize;
-    newState.preloadAdditionalHeight = computedProps.preloadAdditionalHeight;
-
-    newState = Object.assign(
-      newState,
-      infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
-        newState,
+    newState = {
+      ...newState,
+      ...infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
+        props.overscanSize,
+        newState.infiniteComputer,
         utils.getScrollTop()
       )
-    );
+    };
 
     return {
-      computedProps,
       utils,
       newState
     };
@@ -226,7 +180,6 @@ export class Table extends React.Component {
   componentWillReceiveProps(nextProps) {
     var nextInternalState = this.recomputeInternalStateFromProps(nextProps);
 
-    this.computedProps = nextInternalState.computedProps;
     this.utils = nextInternalState.utils;
 
     this.setState(nextInternalState.newState);
@@ -268,11 +221,11 @@ export class Table extends React.Component {
       }
     }
 
-    const hasLoadedMoreChildren =
-      this.state.numberOfChildren !== prevState.numberOfChildren;
+    const hasLoadedMoreChildren = this.props.rows.length !== prevProps.rows.length;
     if (hasLoadedMoreChildren) {
       var newApertureState = infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
-        this.state,
+        this.props.overscanSize,
+        this.state.infiniteComputer,
         this.utils.getScrollTop()
       );
       this.setState(newApertureState);
@@ -313,7 +266,7 @@ export class Table extends React.Component {
     if (this.utils.scrollShouldBeIgnored(e)) {
       return;
     }
-    this.computedProps.handleScroll(this.scrollable);
+    this.props.handleScroll(this.scrollable);
     this.handleScroll(this.utils.getScrollTop());
   };
 
@@ -331,7 +284,7 @@ export class Table extends React.Component {
           isScrolling: false,
           scrollTimeout: undefined
         });
-      }, this.computedProps.timeScrollStateLastsForAfterUserScrolls);
+      }, this.props.timeScrollStateLastsForAfterUserScrolls);
 
     this.setState({
       isScrolling: true,
@@ -342,31 +295,31 @@ export class Table extends React.Component {
   getLowestPossibleScrollTop = () => {
     return (
       this.state.infiniteComputer.getTotalScrollableHeight() -
-      this.computedProps.containerHeight
+      this.props.height
     );
   };
 
   hasAllVisibleItems = () => {
     return !(
-      _isFinite(this.computedProps.infiniteLoadBeginEdgeOffset) &&
+      _isFinite(this.props.infiniteLoadBeginEdgeOffset) &&
       this.state.infiniteComputer.getTotalScrollableHeight() <
-        this.computedProps.containerHeight
+        this.props.height
     );
   };
 
   passedEdgeForInfiniteScroll = (scrollTop) => {
-    const edgeOffset = this.computedProps.infiniteLoadBeginEdgeOffset;
+    const edgeOffset = this.props.infiniteLoadBeginEdgeOffset;
     if (typeof edgeOffset !== 'number') {
       return false;
     }
 
-    if (this.computedProps.displayBottomUpwards) {
+    if (this.props.displayBottomUpwards) {
       return !this.shouldAttachToBottom && scrollTop < edgeOffset;
     } else {
       return (
         scrollTop >
         this.state.infiniteComputer.getTotalScrollableHeight() -
-          this.computedProps.containerHeight -
+          this.props.height -
           edgeOffset
       );
     }
@@ -374,18 +327,19 @@ export class Table extends React.Component {
 
   onInfiniteLoad = () => {
     this.setState({ isInfiniteLoading: true });
-    this.computedProps.onInfiniteLoad();
+    this.props.onInfiniteLoad();
   };
 
   handleScroll = (scrollTop) => {
     this.shouldAttachToBottom =
-      this.computedProps.displayBottomUpwards &&
+      this.props.displayBottomUpwards &&
       scrollTop >= this.getLowestPossibleScrollTop();
 
     this.manageScrollTimeouts();
 
     var newApertureState = infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
-      this.state,
+      this.props.overscanSize,
+      this.state.infiniteComputer,
       scrollTop
     );
 
@@ -393,22 +347,158 @@ export class Table extends React.Component {
       this.passedEdgeForInfiniteScroll(scrollTop) &&
       !this.state.isInfiniteLoading
     ) {
-      this.setState(Object.assign({}, newApertureState));
+      this.setState(newApertureState);
       this.onInfiniteLoad();
     } else {
       this.setState(newApertureState);
     }
   };
 
+
+  renderRows(displayIndexStart, displayIndexEnd) {
+    const rows = []
+    for(let rowIndex = displayIndexStart; rowIndex <= displayIndexEnd; rowIndex++) {
+      const rowHeight = typeof this.props.rowHeight === 'number' ? this.props.rowHeight : this.props.rowHeight(rowIndex)
+
+      const rowData = this.props.rows
+      let columnOffset = 0
+
+      const row = (
+        <tr key={rowIndex} 
+          style={infiniteHelpers.buildHeightStyle(rowHeight)}
+        >
+          {this.props.columns.map((column, columnIndex) => {
+            const columnWidth = column.width
+            
+            let className = ''
+            let style = {
+              width: columnWidth,
+              minWidth: columnWidth,
+              maxWidth: columnWidth,
+            }
+
+            if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+              className += ' is-fixed-left'
+              style.left = columnOffset
+            }
+
+            columnOffset += columnWidth
+
+            return column.cellRenderer({
+              key: columnIndex,
+              columnIndex,
+              column,
+              rowData,
+              rowIndex,
+              className,
+              style
+            })
+          })}
+        </tr>
+      )
+
+      rows.push(row)
+    }
+    return rows
+  }
+
+  renderHeaderRows() {
+    const rows = []
+    let rowOffset = 0
+    for(let rowIndex = 0; rowIndex < this.props.headerCount; rowIndex++) {
+      let columnOffset = 0
+
+      const row = (
+        <tr key={rowIndex} 
+          style={{width: '100%', top: rowOffset}}
+        >
+          {this.props.columns.map((column, columnIndex) => {
+            const columnWidth = column.width
+            
+            let className = ''
+            let style = {
+              width: columnWidth,
+              minWidth: columnWidth,
+              maxWidth: columnWidth,
+            }
+
+            if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+              className += ' is-fixed-left'
+              style.left = columnOffset
+            }
+
+            columnOffset += columnWidth
+
+            return column.headerRenderer({
+              key: columnIndex,
+              columnIndex,
+              column,
+              rowIndex,
+              className,
+              style
+            })
+          })}
+        </tr>
+      )
+
+      rows.push(row)
+    }
+    return rows
+  }
+
+  renderFooterRows () {
+    const rows = []
+    for(let rowIndex = 0; rowIndex < this.props.footerCount; rowIndex++) {
+      let columnOffset = 0
+
+      const row = (
+        <tr key={rowIndex} 
+          style={{width: '100%'}}
+        >
+          {this.props.columns.map((column, columnIndex) => {
+            const columnWidth = column.width
+            
+            let className = ''
+            let style = {
+              width: columnWidth,
+              minWidth: columnWidth,
+              maxWidth: columnWidth,
+            }
+
+            if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+              className += ' is-fixed-left'
+              style.left = columnOffset
+            }
+
+            columnOffset += columnWidth
+
+            return column.footerRenderer({
+              key: columnIndex,
+              columnIndex,
+              column,
+              rowIndex,
+              className,
+              style
+            })
+          })}
+        </tr>
+      )
+
+      rows.push(row)
+    }
+    return rows
+  }
+
   render() {
     var displayables;
-    if (this.state.numberOfChildren > 1) {
-      displayables = this.computedProps.children.slice(
+    if (this.props.rows.length > 1) {
+      displayables = this.renderRows(
         this.state.displayIndexStart,
-        this.state.displayIndexEnd + 1
+        this.state.displayIndexEnd
       );
     } else {
-      displayables = this.computedProps.children;
+      //TODO: noRowsRenderer 
+      displayables = this.props.children;
     }
 
     var infiniteScrollStyles = {};
@@ -425,9 +515,9 @@ export class Table extends React.Component {
 
     // This asymmetry is due to a reluctance to use CSS to control
     // the bottom alignment
-    if (this.computedProps.displayBottomUpwards) {
+    if (this.props.displayBottomUpwards) {
       var heightDifference =
-        this.computedProps.containerHeight -
+        this.props.height -
         this.state.infiniteComputer.getTotalScrollableHeight();
       if (heightDifference > 0) {
         topSpacerHeight = heightDifference - this.loadingSpinnerHeight;
@@ -435,7 +525,7 @@ export class Table extends React.Component {
     }
 
     var loadingSpinner =
-      this.computedProps.infiniteLoadBeginEdgeOffset === undefined
+      this.props.infiniteLoadBeginEdgeOffset === undefined
         ? null
         : <div
             ref={c => {
@@ -443,7 +533,7 @@ export class Table extends React.Component {
             }}
           >
             {this.state.isInfiniteLoading
-              ? this.computedProps.loadingSpinnerDelegate
+              ? this.props.loadingSpinnerDelegate
               : null}
           </div>;
 
@@ -451,7 +541,7 @@ export class Table extends React.Component {
     // rendered elements would have taken up otherwise
     return (
       <div
-        className={'react-infinite-table ' + (this.computedProps.className || '')}
+        className={'react-infinite-table ' + (this.props.className || '')}
         ref={c => {
           this.scrollable = c;
         }}
@@ -459,6 +549,9 @@ export class Table extends React.Component {
         onScroll={this.utils.nodeScrollListener}
       >
         <table style={{width: 'unset'}}>
+          {this.props.headerCount > 0 && <thead>
+            {this.renderHeaderRows()}
+          </thead>}
           <tbody
             ref={c => {
               this.smoothScrollingWrapper = c;
@@ -471,9 +564,9 @@ export class Table extends React.Component {
               }}
               style={infiniteHelpers.buildHeightStyle(topSpacerHeight)}
             />
-            {this.computedProps.displayBottomUpwards && loadingSpinner}
+            {this.props.displayBottomUpwards && loadingSpinner}
             {displayables}
-            {!this.computedProps.displayBottomUpwards && loadingSpinner}
+            {!this.props.displayBottomUpwards && loadingSpinner}
             <tr
               ref={c => {
                 this.bottomSpacer = c;
@@ -481,6 +574,9 @@ export class Table extends React.Component {
               style={infiniteHelpers.buildHeightStyle(bottomSpacerHeight)}
             />
           </tbody>
+          {this.props.footerCount > 0 && <tfoot>
+            {this.renderFooterRows()}
+          </tfoot>}
         </table>
       </div>
     );

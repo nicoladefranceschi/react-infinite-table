@@ -14,16 +14,10 @@ body {
   width: 600px;
 }
 
-.example-table td {
-  width: 90px;
-  min-width: 90px;
-  max-width: 90px;
+.example-table td,
+.example-table th {
   background-color: #fff;
   border: 1px solid #ccc;
-}
-
-.example-table.react-infinite-table td.is-fixed-left--2 {
-  left: 90px;
 }
 
 

@@ -7,37 +7,120 @@ import { Table } from '../index.js'
 
 const ROW_HEIGHT = 30;
 
-const N_ROWS = 10**3
+const N_ROWS = 10**5
 
 const _rows = []
 for (let index = 0; index < N_ROWS; index++) {
-  _rows.push(index)  
+  _rows.push({})  
 }
 
+function cellRenderer({
+  key,
+  columnIndex,
+  column,
+  rowData,
+  rowIndex,
+  className,
+  style
+}) {
+  return <td key={key} className={className} style={style}>
+    R:{rowIndex} C:{columnIndex}
+  </td>
+}
+
+function headerRenderer({
+  key,
+  columnIndex,
+  column,
+  className,
+  style
+}) {
+  return <th key={key} className={className} style={style}>
+    C:{columnIndex}
+  </th>
+}
+
+
+function footerRenderer({
+  key,
+  columnIndex,
+  column,
+  className,
+  style
+}) {
+  return <td key={key} className={className} style={style}>
+    C:{columnIndex}
+  </td>
+}
+
+
+const _columns = [
+  {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }, {
+    cellRenderer: cellRenderer,
+    headerRenderer: headerRenderer,
+    footerRenderer: footerRenderer,
+    width: 90,
+  }
+]
+
 function App() {
-
-  const rows = _rows.map(index => {
-    const s = {
-      height: ROW_HEIGHT
-    }
-    return <tr key={index} style={s}>
-      <td className="is-fixed-left">Index: {index}</td>
-      <td className="is-fixed-left is-fixed-left--2">Col1: {index}</td>
-      <td>Col2: {index}</td>
-      <td>Col3: {index}</td>
-      <td>Col4: {index}</td>
-      <td>Col5: {index}</td>
-      <td>Col6: {index}</td>
-      <td>Col7: {index}</td>
-      <td>Col8: {index}</td>
-      <td>Col9: {index}</td>
-    </tr>
-  })
-
   return (
     <div className="App">
-      <Table containerHeight={200} elementHeight={ROW_HEIGHT} className="example-table">
-        {rows}
+      <Table 
+        className="example-table"
+        height={200} 
+        rowHeight={ROW_HEIGHT} 
+        rows={_rows}
+        columns={_columns}
+        fixedColumnsLeftCount={2}
+        headerCount={1}
+        footerCount={1}
+      >
       </Table>
     </div>
   );
