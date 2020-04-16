@@ -1,7 +1,8 @@
 /* @flow */
 
-var React = require('react');
-var PropTypes = require('prop-types');
+import React from 'react'
+import PropTypes from 'prop-types'
+import classNames from 'classnames'
 
 var window = require('./utils/window');
 
@@ -27,13 +28,11 @@ export class Table extends React.Component {
     footerCount: PropTypes.number,    
     fixedColumnsLeftCount: PropTypes.number,
 
-    //headerRowRenderer
 
     //TODO: check??
 
     // handleScroll: PropTypes.func,
 
-    // useWindowAsScrollContainer: PropTypes.bool,
 
     displayBottomUpwards: PropTypes.bool.isRequired,
 
@@ -47,13 +46,10 @@ export class Table extends React.Component {
     className: PropTypes.string,
   };
 
-
   static defaultProps = {
     overscanSize: 300,
 
     handleScroll: () => {},
-
-    useWindowAsScrollContainer: false,
 
     onInfiniteLoad: () => {},
     loadingSpinnerDelegate: <div />,
@@ -103,44 +99,28 @@ export class Table extends React.Component {
       }
       return loadingSpinnerHeight;
     };
-    if (props.useWindowAsScrollContainer) {
-      utilities.subscribeToScrollListener = () => {
-        window.addEventListener('scroll', this.infiniteHandleScroll);
-      };
-      utilities.unsubscribeFromScrollListener = () => {
-        window.removeEventListener('scroll', this.infiniteHandleScroll);
-      };
-      utilities.nodeScrollListener = () => {};
-      utilities.getScrollTop = () => window.pageYOffset;
-      utilities.setScrollTop = top => {
-        window.scroll(window.pageXOffset, top);
-      };
-      utilities.scrollShouldBeIgnored = () => false;
-      utilities.buildScrollableStyle = () => ({});
-    } else {
-      utilities.subscribeToScrollListener = () => {};
-      utilities.unsubscribeFromScrollListener = () => {};
-      utilities.nodeScrollListener = this.infiniteHandleScroll;
-      utilities.getScrollTop = () => {
-        return this.scrollable ? this.scrollable.scrollTop : 0;
-      };
+  
+    utilities.subscribeToScrollListener = () => {};
+    utilities.unsubscribeFromScrollListener = () => {};
+    utilities.nodeScrollListener = this.infiniteHandleScroll;
+    utilities.getScrollTop = () => {
+      return this.scrollable ? this.scrollable.scrollTop : 0;
+    };
 
-      utilities.setScrollTop = top => {
-        if (this.scrollable) {
-          this.scrollable.scrollTop = top;
-        }
-      };
-      utilities.scrollShouldBeIgnored = event => event.target !== this.scrollable;
+    utilities.setScrollTop = top => {
+      if (this.scrollable) {
+        this.scrollable.scrollTop = top;
+      }
+    };
+    utilities.scrollShouldBeIgnored = event => event.target !== this.scrollable;
 
-      utilities.buildScrollableStyle = () => {
-        return {
-          height: props.height,
-          overflow: 'auto',
-          WebkitOverflowScrolling: 'touch'
-        }
-      };
-    }
     return utilities;
+  };
+
+  buildScrollableStyle = () => {
+    return {
+      height: this.props.height
+    }
   };
 
   recomputeInternalStateFromProps = (
@@ -197,13 +177,6 @@ export class Table extends React.Component {
     prevState
   ) {
     this.loadingSpinnerHeight = this.utils.getLoadingSpinnerHeight();
-
-    if (
-      !prevProps.useWindowAsScrollContainer &&
-      this.props.useWindowAsScrollContainer
-    ) {
-      this.utils.subscribeToScrollListener();
-    }
 
     if (this.props.displayBottomUpwards) {
       var lowestScrollTop = this.getLowestPossibleScrollTop();
@@ -302,8 +275,7 @@ export class Table extends React.Component {
   hasAllVisibleItems = () => {
     return !(
       _isFinite(this.props.infiniteLoadBeginEdgeOffset) &&
-      this.state.infiniteComputer.getTotalScrollableHeight() <
-        this.props.height
+      this.state.infiniteComputer.getTotalScrollableHeight() < this.props.height
     );
   };
 
@@ -317,10 +289,7 @@ export class Table extends React.Component {
       return !this.shouldAttachToBottom && scrollTop < edgeOffset;
     } else {
       return (
-        scrollTop >
-        this.state.infiniteComputer.getTotalScrollableHeight() -
-          this.props.height -
-          edgeOffset
+        scrollTop > this.state.infiniteComputer.getTotalScrollableHeight() - this.props.height - edgeOffset
       );
     }
   };
@@ -516,9 +485,7 @@ export class Table extends React.Component {
     // This asymmetry is due to a reluctance to use CSS to control
     // the bottom alignment
     if (this.props.displayBottomUpwards) {
-      var heightDifference =
-        this.props.height -
-        this.state.infiniteComputer.getTotalScrollableHeight();
+      var heightDifference = this.props.height - this.state.infiniteComputer.getTotalScrollableHeight();
       if (heightDifference > 0) {
         topSpacerHeight = heightDifference - this.loadingSpinnerHeight;
       }
@@ -541,14 +508,15 @@ export class Table extends React.Component {
     // rendered elements would have taken up otherwise
     return (
       <div
-        className={'react-infinite-table ' + (this.props.className || '')}
-        ref={c => {
-          this.scrollable = c;
-        }}
-        style={this.utils.buildScrollableStyle()}
+        className={classNames(
+          'react-infinite-table',
+          this.props.className
+        )}
+        ref={c => { this.scrollable = c }}
+        style={this.buildScrollableStyle()}
         onScroll={this.utils.nodeScrollListener}
       >
-        <table style={{width: 'unset'}}>
+        <table>
           {this.props.headerCount > 0 && <thead>
             {this.renderHeaderRows()}
           </thead>}

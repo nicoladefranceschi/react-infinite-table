@@ -28,7 +28,7 @@
     "url": "https://github.com/nicoladefranceschi/react-infinite-table/issues"
   },
   "scripts": {
-    "start": "cross-env NODE_ENV=development webpack-dev-server --hot --config webpack.config.dev.js"
+    "start": "cross-env NODE_ENV=development webpack-dev-server --host 0.0.0.0 --hot --config webpack.config.dev.js"
   },
   "devDependencies": {
     "@babel/core": "^7.9.0",
@@ -52,6 +52,7 @@
     "webpack-dev-server": "^3.10.3"
   },
   "dependencies": {
+    "classnames": "^2.2.6",
     "prop-types": "^15.7.2"
   },
   "peerDependencies": {

@@ -9,7 +9,7 @@ var _isFinite = require('lodash.isfinite');
 
 module.exports = function(props) {
   var rie = 'Invariant Violation: ';
-  if (!(props.height)) {
+  if (!props.height) {
     throw new Error(
       rie +
         'height must be provided.'
