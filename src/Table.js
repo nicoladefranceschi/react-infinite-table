@@ -1,11 +1,8 @@
-/* @flow */
-
 import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 
 var infiniteHelpers = require('./utils/infiniteHelpers');
-var _isFinite = require('lodash.isfinite');
 
 var checkProps = require('./utils/checkProps');
 
@@ -194,7 +191,7 @@ export class Table extends React.Component {
 
   hasAllVisibleItems = () => {
     return !(
-      _isFinite(this.props.infiniteLoadBeginEdgeOffset) &&
+      this.props.infiniteLoadBeginEdgeOffset === 'number' &&
       this.state.infiniteComputer.getTotalScrollableHeight() < this.props.height
     );
   }

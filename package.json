@@ -41,7 +41,6 @@
     "cross-env": "^7.0.2",
     "css-loader": "^3.5.2",
     "html-webpack-plugin": "^4.2.0",
-    "lodash.isfinite": "^3.3.2",
     "node-sass": "^4.13.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",

@@ -1,6 +1,5 @@
 var ConstantInfiniteComputer = require('../computers/constantInfiniteComputer.js');
 var ArrayInfiniteComputer = require('../computers/arrayInfiniteComputer.js');
-var React = require('react');
 
 function createInfiniteComputer(rowCount, rowHeight) {
   var computer;
