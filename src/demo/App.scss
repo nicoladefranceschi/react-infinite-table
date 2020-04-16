@@ -12,14 +12,25 @@ body {
 .example-table {
   background: white;
   width: 600px;
+
+  border-left: 1px solid #cccc;
+  border-top: 1px solid #cccc;
+
+  tfoot td {
+    border-top: 1px solid #cccc;
+  }
 }
 
 .example-table td,
 .example-table th {
-  background-color: #fff;
-  border: 1px solid #ccc;
+  background-color: #ffff;  
+  border-right: 1px solid #cccc;
+  border-bottom: 1px solid #cccc;
 }
 
+.example-table .tr-odd td {
+  background-color: #f3f3f3;
+}
 
 table tbody {
   pointer-events: unset !important;

@@ -256,21 +256,25 @@ export class Table extends React.Component {
       const rowData = rowsData[rowIndex]
 
       const row = (
-        <tr key={rowIndex} 
+        <tr 
+          key={rowIndex} 
+          className={classNames(
+            (rowIndex % 2 === 0) ? 'tr-odd' : 'tr-even'
+          )}
           style={infiniteHelpers.buildHeightStyle(rowHeight)}
         >
           {this.props.columns.map((column, columnIndex) => {
             const columnWidth = column.width
             
-            let className = ''
+            let classes = []
             let style = {
               width: columnWidth,
               minWidth: columnWidth,
               maxWidth: columnWidth,
-            }
+            }            
 
             if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
-              className += ' is-fixed-left'
+              classes.push('is-fixed-left')
               style.left = columnOffset
             }
 
@@ -282,7 +286,7 @@ export class Table extends React.Component {
               column,
               rowData,
               rowIndex,
-              className,
+              className: classNames(classes),
               style
             })
           })}
