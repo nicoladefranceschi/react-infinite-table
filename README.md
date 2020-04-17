@@ -104,7 +104,7 @@ This packages has been inspired by some existing library dealing with tables in 
 Comparison of the packages
 
 | Feature        | **`react-infinite-table`** | `react-virtualized` |
-| -------------- |:---:|:---:|:---:|
+| -------------- |:---:|:---:|
 | Use HTML table tags: `<table>`, `<tr>`, `<td>`, ... | ✅ | ❌ |
 | Fixed columns  | ✅ | ❌ |
 | Fixed header   | ✅ | ✅ |
