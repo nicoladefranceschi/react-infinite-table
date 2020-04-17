@@ -1,39 +1,39 @@
-var InfiniteComputer = require('./infiniteComputer.js');
+var InfiniteComputer = require('./infiniteComputer.js')
 
 class ConstantInfiniteComputer extends InfiniteComputer {
-  constructor(rowCount, rowHeight) {
+  constructor (rowCount, rowHeight) {
     super()
-    this.rowCount = rowCount;
-    this.rowHeight = rowHeight;
+    this.rowCount = rowCount
+    this.rowHeight = rowHeight
   }
 
-  getTotalScrollableHeight() {
-    return this.rowHeight * this.rowCount;
+  getTotalScrollableHeight () {
+    return this.rowHeight * this.rowCount
   }
 
-  getDisplayIndexStart(windowTop) {
-    return Math.floor(windowTop / this.rowHeight);
+  getDisplayIndexStart (windowTop) {
+    return Math.floor(windowTop / this.rowHeight)
   }
 
-  getDisplayIndexEnd(windowBottom) {
-    var nonZeroIndex = Math.ceil(windowBottom / this.rowHeight);
+  getDisplayIndexEnd (windowBottom) {
+    var nonZeroIndex = Math.ceil(windowBottom / this.rowHeight)
     if (nonZeroIndex > 0) {
-      return nonZeroIndex - 1;
+      return nonZeroIndex - 1
     }
-    return nonZeroIndex;
+    return nonZeroIndex
   }
 
-  getTopSpacerHeight(displayIndexStart) {
-    return displayIndexStart * this.rowHeight;
+  getTopSpacerHeight (displayIndexStart) {
+    return displayIndexStart * this.rowHeight
   }
 
-  getBottomSpacerHeight(displayIndexEnd) {
-    var nonZeroIndex = displayIndexEnd + 1;
+  getBottomSpacerHeight (displayIndexEnd) {
+    var nonZeroIndex = displayIndexEnd + 1
     return Math.max(
       0,
       (this.rowCount - nonZeroIndex) * this.rowHeight
-    );
+    )
   }
 }
 
-module.exports = ConstantInfiniteComputer;
+module.exports = ConstantInfiniteComputer

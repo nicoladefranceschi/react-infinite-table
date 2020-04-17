@@ -1,18 +1,21 @@
-import React from 'react';
+/* eslint-disable react/jsx-handler-names */
+/* eslint-disable react/prop-types */
 
-import './App.scss';
+import React from 'react'
 
+// Import library
 import { Table, reorderColumns } from '../index.js'
+import '../style.scss'
 
+import './App.scss'
 
-const ROW_HEIGHT = 30;
+const ROW_HEIGHT = 30
 
-const N_ROWS = 10**3
+const N_ROWS = 10 ** 3
 const INFINITE_SCROLLING_N_ROWS = 30
 const N_COLS = 10
 
-
-function cellRenderer({
+function cellRenderer ({
   key,
   columnIndex,
   column,
@@ -20,34 +23,38 @@ function cellRenderer({
   rowIndex,
   className
 }) {
-  return <td key={key} className={className}>
-    R:{rowData.i} C:{column.i}
-  </td>
+  return (
+    <td key={key} className={className}>
+      R:{rowData.i} C:{column.i}
+    </td>
+  )
 }
 
-function headerRenderer({
+function headerRenderer ({
   key,
   columnIndex,
   column,
   className
 }) {
-  return <th key={key} className={className}>
-    C:{column.i}
-  </th>
+  return (
+    <th key={key} className={className}>
+      C:{column.i}
+    </th>
+  )
 }
 
-
-function footerRenderer({
+function footerRenderer ({
   key,
   columnIndex,
   column,
   className
 }) {
-  return <td key={key} className={className}>
-    C:{column.i}
-  </td>
+  return (
+    <td key={key} className={className}>
+      C:{column.i}
+    </td>
+  )
 }
-
 
 const _columns = []
 
@@ -57,38 +64,37 @@ for (let index = 0; index < N_COLS; index++) {
     cellRenderer: cellRenderer,
     headerRenderer: headerRenderer,
     footerRenderer: footerRenderer,
-    width: 90,
+    width: 90
   })
 }
-  
 
-function createAllRows() {
+function createAllRows () {
   const rows = []
   for (let index = 0; index < N_ROWS; index++) {
-    rows.push({i: rows.length})
+    rows.push({ i: rows.length })
   }
   return rows
 }
 
 function recreateRows (infiniteScrolling, displayBottomUpwards) {
   let rows
-  if(infiniteScrolling) {
+  if (infiniteScrolling) {
     rows = []
     for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
-      rows.push({i: rows.length})  
+      rows.push({ i: rows.length })
     }
-  }else{
+  } else {
     rows = createAllRows()
   }
-  if(displayBottomUpwards) {
+  if (displayBottomUpwards) {
     rows.reverse()
   }
-  return rows;
+  return rows
 }
-
 
 class App extends React.Component {
   state = {
+    noRows: false,
     fixedColumnsLeftCount: 2,
     displayBottomUpwards: false,
     infiniteScrolling: false,
@@ -97,16 +103,23 @@ class App extends React.Component {
     columns: _columns
   }
 
-  componentWillUnmount(){
+  componentWillUnmount () {
     clearTimeout(this._loadRowsTimeout)
   }
 
-  
+  onNoRowsChanged = noRows => {
+    const rows = noRows ? [] : recreateRows(this.state.infiniteScrolling, this.state.displayBottomUpwards)
+    this.setState({
+      noRows: noRows,
+      rows: rows
+    })
+  }
 
   setDisplayBottomUpwards = displayBottomUpwards => {
     clearTimeout(this._loadRowsTimeout)
     const rows = recreateRows(this.state.infiniteScrolling, displayBottomUpwards)
     this.setState({
+      noRows: false,
       displayBottomUpwards,
       rows: rows,
       isInfiniteLoading: false
@@ -117,6 +130,7 @@ class App extends React.Component {
     clearTimeout(this._loadRowsTimeout)
     const rows = recreateRows(infiniteScrolling, this.state.displayBottomUpwards)
     this.setState({
+      noRows: false,
       infiniteScrolling,
       rows: rows,
       isInfiniteLoading: false
@@ -130,16 +144,16 @@ class App extends React.Component {
     })
     this._loadRowsTimeout = setTimeout(() => {
       const displayBottomUpwards = this.state.displayBottomUpwards
-      let rows = [...this.state.rows]
-      if(displayBottomUpwards){
+      const rows = [...this.state.rows]
+      if (displayBottomUpwards) {
         rows.reverse()
       }
 
       for (let index = 0; index < INFINITE_SCROLLING_N_ROWS; index++) {
-        rows.push({i: rows.length})  
+        rows.push({ i: rows.length })
       }
 
-      if(displayBottomUpwards){
+      if (displayBottomUpwards) {
         rows.reverse()
       }
 
@@ -147,12 +161,12 @@ class App extends React.Component {
         rows: rows,
         isInfiniteLoading: false
       })
-    }, 2000);
+    }, 2000)
   }
 
-  onFixedColumnsLeftCountChange = (e) => {
+  onFixedColumnsLeftCountChange = fixedColumnsLeftCount => {
     this.setState({
-      fixedColumnsLeftCount: parseInt(e.target.value) || 0
+      fixedColumnsLeftCount: fixedColumnsLeftCount
     })
   }
 
@@ -173,58 +187,69 @@ class App extends React.Component {
     })
   }
 
-  render() {
+  render () {
     const {
-      fixedColumnsLeftCount, 
-      infiniteScrolling, 
-      displayBottomUpwards, 
-      rows, 
+      noRows,
+      fixedColumnsLeftCount,
+      infiniteScrolling,
+      displayBottomUpwards,
+      rows,
       columns
     } = this.state
 
     return (
-      <div className="App">
-        <div className="settings">
+      <div className='App'>
+        <div className='settings'>
           <div>
-            <label htmlFor="fixedColumnsLeftCount">Fixed columns: </label>
-            <input 
-              type="number" 
-              id="fixedColumnsLeftCount" 
-              value={fixedColumnsLeftCount} 
+            <input
+              type='checkbox'
+              id='noRows'
+              value={noRows}
+              onChange={e => this.onNoRowsChanged(e.target.checked)}
+            />
+            <label htmlFor='noRows'> No rows</label>
+          </div>
+          <div>
+            <label htmlFor='fixedColumnsLeftCount'>Fixed columns: </label>
+            <input
+              type='number'
+              id='fixedColumnsLeftCount'
+              value={fixedColumnsLeftCount}
               min={0}
               max={columns.length}
               step={1}
-              onChange={this.onFixedColumnsLeftCountChange}
+              onChange={e => this.onFixedColumnsLeftCountChange(parseInt(e.target.value) || 0)}
             />
           </div>
           <div>
-            <input 
-              type="checkbox" 
-              id="infiniteScrolling" 
-              value={infiniteScrolling} 
+            <input
+              type='checkbox'
+              id='infiniteScrolling'
+              value={infiniteScrolling}
               onChange={e => this.onInfiniteScrolling(e.target.checked)}
             />
-            <label htmlFor="infiniteScrolling"> Infinite scrolling</label>
+            <label htmlFor='infiniteScrolling'> Infinite scrolling</label>
           </div>
           <div>
-            <input 
-              type="checkbox" 
-              id="displayBottomUpwards" 
-              value={displayBottomUpwards} 
+            <input
+              type='checkbox'
+              id='displayBottomUpwards'
+              value={displayBottomUpwards}
               onChange={e => this.setDisplayBottomUpwards(e.target.checked)}
             />
-            <label htmlFor="displayBottomUpwards"> Display Bottom Upwards</label>
+            <label htmlFor='displayBottomUpwards'> Display Bottom Upwards</label>
           </div>
         </div>
-        <Table 
-          className="example-table"
-          height={200} 
-          rowHeight={ROW_HEIGHT} 
+        <Table
+          className='example-table'
+          height={200}
+          rowHeight={ROW_HEIGHT}
           rows={rows}
           columns={columns}
           fixedColumnsLeftCount={fixedColumnsLeftCount}
           headerCount={1}
           footerCount={1}
+          noRowsRenderer={() => 'No rows'}
           infiniteLoadBeginEdgeOffset={infiniteScrolling ? 150 : undefined}
           isInfiniteLoading={infiniteScrolling ? this.state.isInfiniteLoading : undefined}
           onInfiniteLoad={infiniteScrolling ? this.onInfiniteLoad : undefined}
@@ -232,11 +257,10 @@ class App extends React.Component {
           displayBottomUpwards={displayBottomUpwards}
           onColumnWidthChange={this.onColumnWidthChange}
           onColumnOrderChange={this.onColumnOrderChange}
-        >
-        </Table>
+        />
       </div>
-    );
+    )
   }
 }
 
-export default App;
+export default App

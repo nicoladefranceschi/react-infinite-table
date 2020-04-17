@@ -1,65 +1,65 @@
-var InfiniteComputer = require('./infiniteComputer.js'),
-  bs = require('../utils/binaryIndexSearch.js');
+var InfiniteComputer = require('./infiniteComputer.js')
+var bs = require('../utils/binaryIndexSearch.js')
 
 class ArrayInfiniteComputer extends InfiniteComputer {
   prefixHeightData;
 
-  constructor(heightData, numberOfChildren) {
-    super(heightData, numberOfChildren);
+  constructor (heightData, numberOfChildren) {
+    super(heightData, numberOfChildren)
     this.prefixHeightData = this.heightData.reduce((acc, next) => {
       if (acc.length === 0) {
-        return [next];
+        return [next]
       } else {
-        acc.push(acc[acc.length - 1] + next);
-        return acc;
+        acc.push(acc[acc.length - 1] + next)
+        return acc
       }
-    }, []);
+    }, [])
   }
 
-  maybeIndexToIndex(index) {
+  maybeIndexToIndex (index) {
     if (typeof index === 'undefined' || index === null) {
-      return this.prefixHeightData.length - 1;
+      return this.prefixHeightData.length - 1
     } else {
-      return index;
+      return index
     }
   }
 
-  getTotalScrollableHeight() {
-    var length = this.prefixHeightData.length;
-    return length === 0 ? 0 : this.prefixHeightData[length - 1];
+  getTotalScrollableHeight () {
+    var length = this.prefixHeightData.length
+    return length === 0 ? 0 : this.prefixHeightData[length - 1]
   }
 
-  getDisplayIndexStart(windowTop) {
+  getDisplayIndexStart (windowTop) {
     var foundIndex = bs.binaryIndexSearch(
       this.prefixHeightData,
       windowTop,
       bs.opts.CLOSEST_HIGHER
-    );
-    return this.maybeIndexToIndex(foundIndex);
+    )
+    return this.maybeIndexToIndex(foundIndex)
   }
 
-  getDisplayIndexEnd(windowBottom) {
+  getDisplayIndexEnd (windowBottom) {
     var foundIndex = bs.binaryIndexSearch(
       this.prefixHeightData,
       windowBottom,
       bs.opts.CLOSEST_HIGHER
-    );
-    return this.maybeIndexToIndex(foundIndex);
+    )
+    return this.maybeIndexToIndex(foundIndex)
   }
 
-  getTopSpacerHeight(displayIndexStart) {
-    var previous = displayIndexStart - 1;
-    return previous < 0 ? 0 : this.prefixHeightData[previous];
+  getTopSpacerHeight (displayIndexStart) {
+    var previous = displayIndexStart - 1
+    return previous < 0 ? 0 : this.prefixHeightData[previous]
   }
 
-  getBottomSpacerHeight(displayIndexEnd) {
+  getBottomSpacerHeight (displayIndexEnd) {
     if (displayIndexEnd === -1) {
-      return 0;
+      return 0
     }
     return (
       this.getTotalScrollableHeight() - this.prefixHeightData[displayIndexEnd]
-    );
+    )
   }
 }
 
-module.exports = ArrayInfiniteComputer;
+module.exports = ArrayInfiniteComputer

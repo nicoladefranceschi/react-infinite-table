@@ -1,7 +1,7 @@
 
-export {Table} from './Table'
+export { Table } from './Table'
 
-export function reorderColumns(columns, fromIndex, toIndex) {
+export function reorderColumns (columns, fromIndex, toIndex) {
   const newColumns = [...columns]
   const column = newColumns[fromIndex]
   newColumns.splice(fromIndex, 1)

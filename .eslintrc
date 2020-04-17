@@ -1,0 +1,10 @@
+{
+  "parser": "babel-eslint",
+  "plugins": [
+    "react"
+  ],
+  "extends": ["standard", "standard-react"],  
+  "ignorePatterns": [
+    "node_modules"
+  ]  
+}
