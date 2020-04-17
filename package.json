@@ -52,7 +52,8 @@
   },
   "dependencies": {
     "classnames": "^2.2.6",
-    "prop-types": "^15.7.2"
+    "prop-types": "^15.7.2",
+    "react-draggable": "^4.3.1"
   },
   "peerDependencies": {
     "react": "^16.13.1",

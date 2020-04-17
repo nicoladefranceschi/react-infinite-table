@@ -132,10 +132,12 @@ function recreateRows (infiniteScrolling, displayBottomUpwards) {
 
 class App extends React.Component {
   state = {
+    fixedColumnsLeftCount: 2,
     displayBottomUpwards: false,
     infiniteScrolling: false,
     rows: createAllRows(),
-    isInfiniteLoading: false
+    isInfiniteLoading: false,
+    columns: _columns
   }
 
   componentWillUnmount(){
@@ -191,13 +193,48 @@ class App extends React.Component {
     }, 2000);
   }
 
+  onFixedColumnsLeftCountChange = (e) => {
+    this.setState({
+      fixedColumnsLeftCount: parseInt(e.target.value) || 0
+    })
+  }
+
+  onColumnWidthChange = (columnIndex, width) => {
+    const newColumns = [...this.state.columns]
+    newColumns[columnIndex] = {
+      ...newColumns[columnIndex],
+      width: width
+    }
+    this.setState({
+      columns: newColumns
+    })
+  }
+
   render() {
-    const {infiniteScrolling, displayBottomUpwards, rows} = this.state
+    const {
+      fixedColumnsLeftCount, 
+      infiniteScrolling, 
+      displayBottomUpwards, 
+      rows, 
+      columns
+    } = this.state
 
     return (
       <div className="App">
         <div className="settings">
-        <div>
+          <div>
+            <label htmlFor="fixedColumnsLeftCount">Fixed columns: </label>
+            <input 
+              type="number" 
+              id="fixedColumnsLeftCount" 
+              value={fixedColumnsLeftCount} 
+              min={0}
+              max={columns.length}
+              step={1}
+              onChange={this.onFixedColumnsLeftCountChange}
+            />
+          </div>
+          <div>
             <input 
               type="checkbox" 
               id="infiniteScrolling" 
@@ -221,8 +258,8 @@ class App extends React.Component {
           height={200} 
           rowHeight={ROW_HEIGHT} 
           rows={rows}
-          columns={_columns}
-          fixedColumnsLeftCount={2}
+          columns={columns}
+          fixedColumnsLeftCount={fixedColumnsLeftCount}
           headerCount={1}
           footerCount={1}
           infiniteLoadBeginEdgeOffset={infiniteScrolling ? 150 : undefined}
@@ -230,6 +267,7 @@ class App extends React.Component {
           onInfiniteLoad={infiniteScrolling ? this.onInfiniteLoad : undefined}
           getLoadingSpinner={() => <div>Loading...</div>}
           displayBottomUpwards={displayBottomUpwards}
+          onColumnWidthChange={this.onColumnWidthChange}
         >
         </Table>
       </div>

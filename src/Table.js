@@ -1,10 +1,13 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
+import { DraggableCore } from 'react-draggable';
 
 var infiniteHelpers = require('./utils/infiniteHelpers');
 
 var checkProps = require('./utils/checkProps');
+
+let _nextId = 1
 
 export class Table extends React.Component {
 
@@ -31,6 +34,8 @@ export class Table extends React.Component {
     displayBottomUpwards: PropTypes.bool.isRequired,
 
     className: PropTypes.string,
+
+    onColumnWidthChange: PropTypes.func,
   };
 
   static defaultProps = {
@@ -45,6 +50,8 @@ export class Table extends React.Component {
 
   constructor(props) {
     super(props);
+
+    this._id = 'react-infinite-table-' + _nextId++
 
     this.shouldAttachToBottom = props.displayBottomUpwards;
 
@@ -167,6 +174,13 @@ export class Table extends React.Component {
     if (isMissingVisibleRows) {
       this.onInfiniteLoad();
     }
+
+    if(
+      this.props.columns !== prevProps.columns ||
+      this.props.fixedColumnsLeftCount !== prevProps.fixedColumnsLeftCount
+    ){
+      this._style.innerHTML = this.getStyles()
+    }
   }
 
   componentDidMount() {
@@ -243,6 +257,54 @@ export class Table extends React.Component {
     }
   }
 
+  resizeColumn(columnIndex, width, isDragging) {
+    if(isDragging){
+      this._columnDrag = {
+        columnIndex,
+        width
+      }
+      this._style.innerHTML = this.getStyles()
+    }else{
+      this.props.onColumnWidthChange(columnIndex, width)
+      this._style.innerHTML = this.getStyles()
+    }
+  }
+
+
+  getColumnWidth(columnIndex) {
+    const column = this.props.columns[columnIndex]
+    return this._columnDrag && this._columnDrag.columnIndex === columnIndex 
+      ? this._columnDrag.width 
+      : column.width
+  }
+
+
+  getStyles() {
+    let columnOffset = 0
+    return this.props.columns.map((column, columnIndex) => {
+      const columnWidth = this.getColumnWidth(columnIndex)
+
+      const shouldBeFixed = this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount
+      let left;
+      if(shouldBeFixed) {
+        left = columnOffset + 'px'
+      }else{
+        left = 'unset'
+      }
+
+      columnOffset += columnWidth
+
+      return `
+        #${this._id} .react-infinite-table-col-${columnIndex} {
+          width: ${columnWidth}px;
+          min-width: ${columnWidth}px;
+          max-width: ${columnWidth}px;
+          left: ${left};
+        }
+      `
+    }).join('\n')
+  }
+
 
   renderRows(displayIndexStart, displayIndexEnd) {
     const rows = []
@@ -264,18 +326,15 @@ export class Table extends React.Component {
           style={infiniteHelpers.buildHeightStyle(rowHeight)}
         >
           {this.props.columns.map((column, columnIndex) => {
-            const columnWidth = column.width
-            
-            let classes = []
-            let style = {
-              width: columnWidth,
-              minWidth: columnWidth,
-              maxWidth: columnWidth,
-            }            
+            const columnWidth = this.getColumnWidth(columnIndex)
+
+            let classes = [
+              'react-infinite-table-col-' + columnIndex
+            ]
+            let style = {}            
 
             if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
               classes.push('is-fixed-left')
-              style.left = columnOffset
             }
 
             columnOffset += columnWidth
@@ -301,6 +360,7 @@ export class Table extends React.Component {
   renderHeaderRows() {
     const rows = []
     let rowOffset = 0
+
     for(let rowIndex = 0; rowIndex < this.props.headerCount; rowIndex++) {
       let columnOffset = 0
 
@@ -308,31 +368,133 @@ export class Table extends React.Component {
         <tr key={rowIndex} 
           style={{width: '100%', top: rowOffset}}
         >
-          {this.props.columns.map((column, columnIndex) => {
-            const columnWidth = column.width
+          {this.props.columns.map((column, columnIndex) => {            
+            const columnWidth = this.getColumnWidth(columnIndex)
             
-            let className = ''
-            let style = {
-              width: columnWidth,
-              minWidth: columnWidth,
-              maxWidth: columnWidth,
-            }
+            let classes = [
+              'react-infinite-table-col-' + columnIndex
+            ]
+            let style = {}
 
             if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
-              className += ' is-fixed-left'
-              style.left = columnOffset
+              classes.push('is-fixed-left')
             }
+
+            // TODO: props
+            const canChangeColumnsOrder = true
+            const canResizeColumns = typeof this.props.onColumnWidthChange === 'function'
+
+            classes.push(
+              canChangeColumnsOrder && 'react-infinite-column-reorder',
+              canResizeColumns && 'react-infinite-column-resize',
+            )            
 
             columnOffset += columnWidth
 
-            return column.headerRenderer({
+            let cell = column.headerRenderer({
               key: columnIndex,
               columnIndex,
               column,
               rowIndex,
-              className,
+              className: classNames(classes),
               style
             })
+
+            if(canChangeColumnsOrder || canResizeColumns) {
+              cell = <DraggableCore
+                key={columnIndex}
+                offsetParent={this.scrollable}
+                onStart={(event, data) => {
+                  const target = event.target
+                  const cellEl = target.closest('th, td')
+                  this._draggingCell = cellEl
+                  this._initialDataX = data.x
+
+                  cellEl.classList.add('react-infinite-column-dragging')
+
+                  const isResizing = canResizeColumns && (event.nativeEvent.offsetX >= cellEl.offsetWidth - 4)
+
+                  if(isResizing) {
+                    cellEl.classList.add('react-infinite-column-resizing')
+                    this._isDraggingResizer = true
+
+                    event.stopPropagation()
+
+                    this._initialColumnWidth = columnWidth
+  
+                  }else{
+                    this._oldStyleData = {
+                      marginLeft: cellEl.style.marginLeft,
+                      borderLeft: cellEl.style.borderLeft,
+                      width: cellEl.style.width,
+                      maxWidth: cellEl.style.maxWidth,
+                      minWidth: cellEl.style.minWidth
+                    }
+  
+                    cellEl.classList.add('react-infinite-column-reordering')
+                    this._isDraggingReorder = true
+  
+                    const addedBorderWidth = 1
+                    const width = cellEl.getBoundingClientRect().width + addedBorderWidth
+                    cellEl.style.marginLeft = `${-addedBorderWidth}px`
+                    cellEl.style.borderLeft = `${addedBorderWidth}px solid red`
+                    cellEl.style.width = `${width}px`
+                    cellEl.style.maxWidth = `${width}px`
+                    cellEl.style.minWidth = `${width}px`
+                  } 
+                }}
+                onStop={(event, data) => {
+                  const cellEl = this._draggingCell
+                  cellEl.classList.remove('react-infinite-column-dragging')
+                  cellEl.classList.remove('react-infinite-column-resizing')
+                  cellEl.classList.remove('react-infinite-column-reordering')
+
+                  if(this._isDraggingResizer) {
+                    event.stopPropagation()
+                    const width = this._initialColumnWidth
+                    const minColumnWidth = 40
+                    this.resizeColumn(columnIndex, Math.max(width + data.x - this._initialDataX, minColumnWidth), false)
+                  }
+                  if(this._isDraggingReorder) {
+                    const oldStyleData = this._oldStyleData
+                    for (const key in oldStyleData) {
+                      if (oldStyleData.hasOwnProperty(key)) {
+                        const value = oldStyleData[key];
+                        cellEl.style[key] = value
+                      }
+                    }
+                    
+                    
+                  }
+
+                  delete this._draggingCell
+                  delete this._initialDataX
+                  delete this._isDraggingResizer
+                  delete this._isDraggingReorder
+                  delete this._oldStyleData  
+                  delete this._columnDrag
+                }}
+                onDrag={(event, data) => {
+                  if(this._isDraggingResizer) {
+                    event.stopPropagation()
+                    const width = this._initialColumnWidth
+                    const minColumnWidth = 40
+                    this.resizeColumn(columnIndex, Math.max(width + data.x - this._initialDataX, minColumnWidth), true)
+                  }
+                  if(this._isDraggingReorder) {
+
+                  }
+                }}
+                position={{
+                  x: 0,
+                  y: 0
+                }}
+              >
+                {cell}
+              </DraggableCore>
+            }            
+
+            return cell
           })}
         </tr>
       )
@@ -352,18 +514,15 @@ export class Table extends React.Component {
           style={{width: '100%'}}
         >
           {this.props.columns.map((column, columnIndex) => {
-            const columnWidth = column.width
+            const columnWidth = this.getColumnWidth(columnIndex)
             
-            let className = ''
-            let style = {
-              width: columnWidth,
-              minWidth: columnWidth,
-              maxWidth: columnWidth,
-            }
+            let classes = [
+              'react-infinite-table-col-' + columnIndex
+            ]
+            let style = {}
 
             if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
-              className += ' is-fixed-left'
-              style.left = columnOffset
+              classes.push('is-fixed-left')
             }
 
             columnOffset += columnWidth
@@ -373,7 +532,7 @@ export class Table extends React.Component {
               columnIndex,
               column,
               rowIndex,
-              className,
+              className: classNames(classes),
               style
             })
           })}
@@ -426,15 +585,15 @@ export class Table extends React.Component {
         ) 
         : null
 
-    // topSpacer and bottomSpacer take up the amount of space that the
-    // rendered elements would have taken up otherwise
     return (
       <div
+        id={this._id}
         className={classNames(
           "react-infinite-table",
           this.props.className
         )}
-      >      
+      >
+        <style ref={el => this._style = el} dangerouslySetInnerHTML={{__html: this.getStyles()}}/>
         <div
           className="react-infinite-table-wrapper"
           ref={c => { this.scrollable = c }}
@@ -442,7 +601,7 @@ export class Table extends React.Component {
           onScroll={this.handleScroll}
         >
           <div className="react-infinite-table-scroll-smoother" />
-          <table>
+          <table>            
             {this.props.headerCount > 0 && <thead>
               {this.renderHeaderRows()}
             </thead>}

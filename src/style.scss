@@ -117,4 +117,22 @@
     position: absolute;
     top: 0;
   }
+  
+  th, td {
+    &.react-infinite-column-dragging {
+      //position: absolute;
+      z-index: 6;
+    }
+
+    &.react-infinite-column-resize::after {
+      content: '';
+      position: absolute;
+      right: 0px;
+      top: 0px;
+      bottom: 0px;
+      margin-right: -2px;
+      width: 4px;
+      cursor: col-resize;
+    }
+  }
 }
