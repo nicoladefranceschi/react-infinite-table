@@ -1,7 +1,7 @@
-var ConstantInfiniteComputer = require('../computers/constantInfiniteComputer.js')
-var ArrayInfiniteComputer = require('../computers/arrayInfiniteComputer.js')
+import ConstantInfiniteComputer from '../computers/constantInfiniteComputer.js'
+import ArrayInfiniteComputer from '../computers/arrayInfiniteComputer.js'
 
-function createInfiniteComputer (rowCount, rowHeight) {
+export function createInfiniteComputer (rowCount, rowHeight) {
   var computer
   if (typeof rowHeight === 'function') {
     throw new Error('not implemented yet')
@@ -17,7 +17,7 @@ function createInfiniteComputer (rowCount, rowHeight) {
 // from any actual representation in the DOM.
 // The window is the block with any overscanSize
 // added to it.
-function recomputeApertureStateFromOptionsAndScrollTop (
+export function recomputeApertureStateFromOptionsAndScrollTop (
   overscanSize,
   infiniteComputer,
   scrollTop
@@ -37,14 +37,8 @@ function recomputeApertureStateFromOptionsAndScrollTop (
   }
 }
 
-function buildHeightStyle (height, heightKey = 'height') {
+export function buildHeightStyle (height, heightKey = 'height') {
   return {
     [heightKey]: Math.ceil(height)
   }
-}
-
-module.exports = {
-  createInfiniteComputer,
-  recomputeApertureStateFromOptionsAndScrollTop,
-  buildHeightStyle
 }

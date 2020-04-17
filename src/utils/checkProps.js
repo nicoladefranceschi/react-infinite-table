@@ -1,5 +1,4 @@
-
-module.exports = function (props) {
+export default function (props) {
   var rie = 'Invariant Violation: '
   if (!props.height) {
     throw new Error(

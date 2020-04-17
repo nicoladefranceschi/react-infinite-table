@@ -14,6 +14,29 @@ if (env === 'production') {
       '@babel/plugin-transform-runtime',
       '@babel/plugin-proposal-class-properties',
     ],
-    presets: ['@babel/preset-env', '@babel/preset-react'],
+    presets: [
+      ['@babel/preset-env', {modules: false}],
+      '@babel/preset-react'
+    ],
   };
+}
+
+if (env === 'commonjs' || env === 'es') {
+  module.exports = {
+    ignore: [
+      'src/demo'
+    ],
+    plugins: [
+      '@babel/plugin-transform-runtime',
+      '@babel/plugin-proposal-class-properties'
+    ],
+    presets: [
+      ['@babel/preset-env', {modules: false}],
+      '@babel/preset-react'
+    ],
+  };
+
+  if (env === 'commonjs') {
+    module.exports.plugins.push('@babel/plugin-transform-modules-commonjs');
+  }
 }

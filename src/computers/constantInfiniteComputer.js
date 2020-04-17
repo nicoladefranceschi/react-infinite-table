@@ -1,4 +1,4 @@
-var InfiniteComputer = require('./infiniteComputer.js')
+import InfiniteComputer from './infiniteComputer.js'
 
 class ConstantInfiniteComputer extends InfiniteComputer {
   constructor (rowCount, rowHeight) {
@@ -36,4 +36,4 @@ class ConstantInfiniteComputer extends InfiniteComputer {
   }
 }
 
-module.exports = ConstantInfiniteComputer
+export default ConstantInfiniteComputer

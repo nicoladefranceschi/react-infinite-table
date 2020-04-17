@@ -1,4 +1,10 @@
 {  
+  "search.useIgnoreFiles": true,
+  "search.exclude": {
+    "node_modules": true,
+    "build": true,
+    "dist": true,
+  },
   "eslint.lintTask.enable": true,
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true

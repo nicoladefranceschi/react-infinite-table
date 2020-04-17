@@ -3,9 +3,8 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { DraggableCore } from 'react-draggable'
 
-var infiniteHelpers = require('./utils/infiniteHelpers')
-
-var checkProps = require('./utils/checkProps')
+import * as infiniteHelpers from './utils/infiniteHelpers'
+import checkProps from './utils/checkProps'
 
 let _nextId = 1
 

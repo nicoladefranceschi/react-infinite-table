@@ -5,6 +5,7 @@
   ],
   "extends": ["standard", "standard-react"],  
   "ignorePatterns": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]  
 }

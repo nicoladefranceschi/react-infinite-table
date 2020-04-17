@@ -45,4 +45,4 @@ class InfiniteComputer {
   }
 }
 
-module.exports = InfiniteComputer
+export default InfiniteComputer

@@ -1,5 +1,5 @@
-var InfiniteComputer = require('./infiniteComputer.js')
-var bs = require('../utils/binaryIndexSearch.js')
+import InfiniteComputer from './infiniteComputer.js'
+import bs from '../utils/binaryIndexSearch.js'
 
 class ArrayInfiniteComputer extends InfiniteComputer {
   prefixHeightData;
@@ -62,4 +62,4 @@ class ArrayInfiniteComputer extends InfiniteComputer {
   }
 }
 
-module.exports = ArrayInfiniteComputer
+export default ArrayInfiniteComputer
