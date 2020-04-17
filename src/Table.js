@@ -36,6 +36,7 @@ export class Table extends React.Component {
     className: PropTypes.string,
 
     onColumnWidthChange: PropTypes.func,
+    onColumnOrderChange: PropTypes.func,
   };
 
   static defaultProps = {
@@ -265,7 +266,59 @@ export class Table extends React.Component {
       }
       this._style.innerHTML = this.getStyles()
     }else{
+      delete this._columnDrag
       this.props.onColumnWidthChange(columnIndex, width)
+      this._style.innerHTML = this.getStyles()
+    }
+  }
+
+  reorderColumn(x, isDragging) {    
+    let columnOffset = 0
+    
+    const positions = this.props.columns.map((column, columnIndex) => {
+      const columnWidth = this.getColumnWidth(columnIndex)
+      const left = columnOffset
+      columnOffset += columnWidth
+      return {
+        left: left,
+        center: left + columnWidth / 2,
+        right: left + columnWidth
+      }
+    })
+
+    const fromLeft = positions[this._columnOrdering.fromIndex].left + x
+    const fromRight = positions[this._columnOrdering.fromIndex].right + x
+
+    this._columnOrdering.toIndex = this._columnOrdering.fromIndex// this.props.columns.length - 1
+    for (let columnIndex = 0; columnIndex < this.props.columns.length; columnIndex++) {
+      const pos = positions[columnIndex]
+      if (columnIndex < this._columnOrdering.fromIndex) {
+        if(pos.center > fromLeft) {
+          this._columnOrdering.toIndex = columnIndex
+          break
+        }
+      } else if (columnIndex > this._columnOrdering.fromIndex) {
+        if(pos.center < fromRight) {
+          this._columnOrdering.toIndex = columnIndex
+        }
+      }
+    }
+
+    const lastRight = positions[positions.length - 1].right
+    if(fromLeft < 0) {
+      x -= fromLeft
+    }else if (fromRight > lastRight) {
+      x -= fromRight - lastRight
+    }
+
+    this._columnOrdering.deltaX = x
+
+    if(isDragging){
+      this._style.innerHTML = this.getStyles()
+    }else{
+      const {fromIndex, toIndex} = this._columnOrdering
+      delete this._columnOrdering
+      this.props.onColumnOrderChange(fromIndex, toIndex)
       this._style.innerHTML = this.getStyles()
     }
   }
@@ -281,28 +334,56 @@ export class Table extends React.Component {
 
   getStyles() {
     let columnOffset = 0
-    return this.props.columns.map((column, columnIndex) => {
+
+    const lefts = this.props.columns.map((column, columnIndex) => {
       const columnWidth = this.getColumnWidth(columnIndex)
-
-      const shouldBeFixed = this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount
-      let left;
-      if(shouldBeFixed) {
-        left = columnOffset + 'px'
-      }else{
-        left = 'unset'
-      }
-
+      const left = columnOffset
       columnOffset += columnWidth
+      return left
+    })
+
+    if(this._columnOrdering){      
+      lefts[this._columnOrdering.fromIndex] = lefts[this._columnOrdering.fromIndex] + this._columnOrdering.deltaX
+    }
+
+    const styles = this.props.columns.map((column, columnIndex) => {
+      const columnWidth = this.getColumnWidth(columnIndex)
+      let left = lefts[columnIndex];
+      let others = ''
+      let otherStyle = ''
+
+      if(this._columnOrdering) {
+        if(columnIndex === this._columnOrdering.fromIndex) {
+          others += 'z-index: 6;'
+          others += `transform: translateX(${this._columnOrdering.deltaX}px);`
+          
+          otherStyle = `
+            #${this._id} tbody .react-infinite-table-col-${columnIndex} {
+              position: sticky;
+              z-index: 5;
+            }
+          `
+        }else if (columnIndex >= this._columnOrdering.toIndex && columnIndex < this._columnOrdering.fromIndex) {
+          others += `transform: translateX(${this._columnOrdering.width}px);`
+        }else if (columnIndex <= this._columnOrdering.toIndex && columnIndex > this._columnOrdering.fromIndex) {
+          others += `transform: translateX(${-this._columnOrdering.width}px);`
+        }
+      }else if(this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+        others += `left: ${left}px`
+      }
 
       return `
         #${this._id} .react-infinite-table-col-${columnIndex} {
           width: ${columnWidth}px;
           min-width: ${columnWidth}px;
           max-width: ${columnWidth}px;
-          left: ${left};
+          ${others}
         }
+        ${otherStyle}
       `
-    }).join('\n')
+    })
+    
+    return styles.join('\n')
   }
 
 
@@ -381,7 +462,7 @@ export class Table extends React.Component {
             }
 
             // TODO: props
-            const canChangeColumnsOrder = true
+            const canChangeColumnsOrder = typeof this.props.onColumnOrderChange === 'function'
             const canResizeColumns = typeof this.props.onColumnWidthChange === 'function'
 
             classes.push(
@@ -413,6 +494,7 @@ export class Table extends React.Component {
                   cellEl.classList.add('react-infinite-column-dragging')
 
                   const isResizing = canResizeColumns && (event.nativeEvent.offsetX >= cellEl.offsetWidth - 4)
+                  const isOrdering = !isResizing && canChangeColumnsOrder 
 
                   if(isResizing) {
                     cellEl.classList.add('react-infinite-column-resizing')
@@ -422,32 +504,67 @@ export class Table extends React.Component {
 
                     this._initialColumnWidth = columnWidth
   
-                  }else{
-                    this._oldStyleData = {
-                      marginLeft: cellEl.style.marginLeft,
-                      borderLeft: cellEl.style.borderLeft,
-                      width: cellEl.style.width,
-                      maxWidth: cellEl.style.maxWidth,
-                      minWidth: cellEl.style.minWidth
-                    }
-  
+                  }else if(isOrdering) {
+                    this._oldStyleData = {}
+                    
                     cellEl.classList.add('react-infinite-column-reordering')
                     this._isDraggingReorder = true
-  
-                    const addedBorderWidth = 1
-                    const width = cellEl.getBoundingClientRect().width + addedBorderWidth
-                    cellEl.style.marginLeft = `${-addedBorderWidth}px`
-                    cellEl.style.borderLeft = `${addedBorderWidth}px solid red`
-                    cellEl.style.width = `${width}px`
-                    cellEl.style.maxWidth = `${width}px`
-                    cellEl.style.minWidth = `${width}px`
+
+                    this._columnOrdering = {
+                      fromIndex: columnIndex,
+                      toIndex: columnIndex,
+                      width: columnWidth,
+                      deltaX: 0
+                    }
                   } 
+                }}
+                onDrag={(event, data) => {
+                  const cellEl = this._draggingCell
+
+                  if(this._isDraggingResizer) {
+                    event.stopPropagation()
+                    const width = this._initialColumnWidth
+                    const minColumnWidth = 40
+                    this.resizeColumn(columnIndex, Math.max(width + data.x - this._initialDataX, minColumnWidth), true)
+                  }
+
+                  if(this._isDraggingReorder) {
+                    const x = data.x - this._initialDataX
+
+                    if (!this._isDraggingReorderStarted) {
+                      if (x < 3 && x > -3) {
+                        // ignoring dragging
+                        return
+                      }
+                      this._isDraggingReorderStarted = true
+                      cellEl.classList.add('react-infinite-column-reordering-started')
+
+                      this._oldStyleData = {
+                        marginLeft: cellEl.style.marginLeft,
+                        borderLeft: cellEl.style.borderLeft,
+                        width: cellEl.style.width,
+                        maxWidth: cellEl.style.maxWidth,
+                        minWidth: cellEl.style.minWidth
+                      }
+    
+                      const addedBorderWidth = 1
+                      const width = cellEl.getBoundingClientRect().width + addedBorderWidth
+                      cellEl.style.marginLeft = `${-addedBorderWidth}px`
+                      cellEl.style.borderLeft = `${addedBorderWidth}px solid red`
+                      cellEl.style.width = `${width}px`
+                      cellEl.style.maxWidth = `${width}px`
+                      cellEl.style.minWidth = `${width}px`  
+                    }
+        
+                    this.reorderColumn(x, true)                    
+                  }
                 }}
                 onStop={(event, data) => {
                   const cellEl = this._draggingCell
                   cellEl.classList.remove('react-infinite-column-dragging')
                   cellEl.classList.remove('react-infinite-column-resizing')
                   cellEl.classList.remove('react-infinite-column-reordering')
+                  cellEl.classList.remove('react-infinite-column-reordering-started')
 
                   if(this._isDraggingResizer) {
                     event.stopPropagation()
@@ -464,7 +581,10 @@ export class Table extends React.Component {
                       }
                     }
                     
-                    
+                    if(this._isDraggingReorderStarted) {
+                      const x = data.x - this._initialDataX
+                      this.reorderColumn(x, false)
+                    }                   
                   }
 
                   delete this._draggingCell
@@ -473,18 +593,9 @@ export class Table extends React.Component {
                   delete this._isDraggingReorder
                   delete this._oldStyleData  
                   delete this._columnDrag
-                }}
-                onDrag={(event, data) => {
-                  if(this._isDraggingResizer) {
-                    event.stopPropagation()
-                    const width = this._initialColumnWidth
-                    const minColumnWidth = 40
-                    this.resizeColumn(columnIndex, Math.max(width + data.x - this._initialDataX, minColumnWidth), true)
-                  }
-                  if(this._isDraggingReorder) {
-
-                  }
-                }}
+                  delete this._columnOrdering
+                  delete this._isDraggingReorderStarted
+                }}                
                 position={{
                   x: 0,
                   y: 0

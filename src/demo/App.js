@@ -2,13 +2,14 @@ import React from 'react';
 
 import './App.scss';
 
-import { Table } from '../index.js'
+import { Table, reorderColumns } from '../index.js'
 
 
 const ROW_HEIGHT = 30;
 
 const N_ROWS = 10**3
 const INFINITE_SCROLLING_N_ROWS = 30
+const N_COLS = 10
 
 
 function cellRenderer({
@@ -21,7 +22,7 @@ function cellRenderer({
   style
 }) {
   return <td key={key} className={className} style={style}>
-    R:{rowData.i} C:{columnIndex}
+    R:{rowData.i} C:{column.i}
   </td>
 }
 
@@ -33,7 +34,7 @@ function headerRenderer({
   style
 }) {
   return <th key={key} className={className} style={style}>
-    C:{columnIndex}
+    C:{column.i}
   </th>
 }
 
@@ -46,64 +47,23 @@ function footerRenderer({
   style
 }) {
   return <td key={key} className={className} style={style}>
-    C:{columnIndex}
+    C:{column.i}
   </td>
 }
 
 
-const _columns = [
-  {
+const _columns = []
+
+for (let index = 0; index < N_COLS; index++) {
+  _columns.push({
+    i: index,
     cellRenderer: cellRenderer,
     headerRenderer: headerRenderer,
     footerRenderer: footerRenderer,
     width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }, {
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 90,
-  }
-]
+  })
+}
+  
 
 function createAllRows() {
   const rows = []
@@ -210,6 +170,12 @@ class App extends React.Component {
     })
   }
 
+  onColumnOrderChange = (fromIndex, toIndex) => {
+    this.setState({
+      columns: reorderColumns(this.state.columns, fromIndex, toIndex)
+    })
+  }
+
   render() {
     const {
       fixedColumnsLeftCount, 
@@ -268,6 +234,7 @@ class App extends React.Component {
           getLoadingSpinner={() => <div>Loading...</div>}
           displayBottomUpwards={displayBottomUpwards}
           onColumnWidthChange={this.onColumnWidthChange}
+          onColumnOrderChange={this.onColumnOrderChange}
         >
         </Table>
       </div>

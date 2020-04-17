@@ -120,7 +120,6 @@
   
   th, td {
     &.react-infinite-column-dragging {
-      //position: absolute;
       z-index: 6;
     }
 
@@ -133,6 +132,11 @@
       margin-right: -2px;
       width: 4px;
       cursor: col-resize;
+    }
+
+
+    &.react-infinite-column-reordering-started {
+      position: absolute;
     }
   }
 }
