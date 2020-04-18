@@ -1,5 +1,9 @@
 ## Changelog
 
+##### 1.1.1
+
+- Passthrough style prop to the table container `<div>`
+
 ##### 1.1.0
 
 - Rename `fixedColumnsLeftCount` prop to `fixedColumnsCount`

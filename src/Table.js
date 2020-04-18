@@ -40,6 +40,7 @@ export class Table extends React.Component {
 
     className: PropTypes.string,
     tableClassName: PropTypes.string,
+    style: PropTypes.object,
 
     onColumnWidthChange: PropTypes.func,
     onColumnOrderChange: PropTypes.func
@@ -806,6 +807,7 @@ export class Table extends React.Component {
           'react-infinite-table',
           this.props.className
         )}
+        style={this.props.style}
       >
         <style ref={el => { this._style = el }} dangerouslySetInnerHTML={{ __html: this.getStyles() }} />
         <div

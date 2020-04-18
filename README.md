@@ -96,7 +96,7 @@ const columns = [
   // infinite load:
   infiniteLoadBeginEdgeOffset={150}
   isInfiniteLoading={true|false}
-  onInfiniteLoad={() => { /* fetch your data ... */ })}
+  onInfiniteLoad={() => { /* fetch your data ... */ }}
   getLoadingSpinner={() => <div>Loading...</div>}
   // display from bottom upwards, like a Chat or Message Box 
   displayBottomUpwards={displayBottomUpwards}
@@ -172,6 +172,7 @@ NPM will not automatically install these for you but it will show you a warning 
 | displayBottomUpwards | Boolean |          | Whether or not to show the rows starting at the bottom, like in a chat/messaging application. Default: `displayBottomUpwards: false` |
 | className         | String    |           | A class to add to the table container `<div>`. Default: `className: undefined` |
 | tableClassName    | String    |           | A class to add to the `<table>` node. Default: `tableClassName: undefined` |
+| style             | Object    |           | Passthrough prop to the table container `<div>`. Default: `style: undefined` |
 | onColumnWidthChange | Function |          | Callback called when a column's width has changed. You should update the Column definition accordingly. `(columnIndex, width) => { /* update columns... */ }`. Default: `onColumnWidthChange: undefined` - Column's can't be resized. |
 | onColumnOrderChange | Function |          | Callback called when a column order position is changed from `fromIndex` to `toIndex`. You should update the Columns array accordingly. `(fromIndex, toIndex) => { /* update columns... */ }`. Default: `onColumnOrderChange: undefined` - Column's can't be reordered. <br/> You can use the helper function `reorderColumns`. [Learn more](#reordercolumns) |
 
