@@ -3,8 +3,8 @@ React Infinite Table
 
 [![NPM version](https://img.shields.io/npm/v/react-infinite-table.svg?style=flat)](https://www.npmjs.com/package/react-infinite-table)
 ![NPM license](https://img.shields.io/npm/l/react-infinite-table.svg?style=flat)
-![npm bundle size](https://img.shields.io/bundlephobia/min/react-infinite-table)
-![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-infinite-table)
+[![npm bundle size](https://img.shields.io/bundlephobia/min/react-infinite-table)](https://bundlephobia.com/result?p=react-infinite-table@latest)
+[![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-infinite-table)](https://bundlephobia.com/result?p=react-infinite-table@latest)
 [![NPM total downloads](https://img.shields.io/npm/dt/react-infinite-table.svg?style=flat)](https://npmcharts.com/compare/react-infinite-table?minimal=true)
 [![NPM monthly downloads](https://img.shields.io/npm/dm/react-infinite-table.svg?style=flat)](https://npmcharts.com/compare/react-infinite-table?minimal=true)
 
@@ -125,6 +125,7 @@ Comparison of similar packages:
 | Fixed footer   | ✅ | ❌ | ❌ |
 | Column resize (by dragging)  | ✅ | ❌ | ✅ |
 | Column reorder (by dragging) | ✅ | ❌ | ❌ |
+| Row selection  | ✅ | ❌ | ✅ |
 | No use of `javascript` to sync scroll between fixed columns/rows | ✅ | ❌ | ❌ |
 | Size | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-infinite-table) <br/> ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-infinite-table) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-virtualized) <br/>  ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-virtualized) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-base-table) <br/> ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-base-table) |
 

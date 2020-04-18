@@ -825,7 +825,7 @@ export class Table extends React.Component {
                   height: Math.ceil(topSpacerHeight)
                 }}
               />
-              <tr className='react-infinite-table-spacer' style={{ height: 0 }} /> {/* to fix odd-even numbers */}
+              <tr className='react-infinite-table-spacer' style={{ height: 0 }} /* to fix odd-even numbers */ />
               {this.props.displayBottomUpwards && loadingSpinner}
               {displayables}
               {!this.props.displayBottomUpwards && loadingSpinner}
