@@ -36,9 +36,3 @@ export function recomputeApertureStateFromOptionsAndScrollTop (
     displayIndexEnd: infiniteComputer.getDisplayIndexEnd(apertureBottom)
   }
 }
-
-export function buildHeightStyle (height, heightKey = 'height') {
-  return {
-    [heightKey]: Math.ceil(height)
-  }
-}

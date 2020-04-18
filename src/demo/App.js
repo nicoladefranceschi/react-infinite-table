@@ -9,11 +9,9 @@ import '../style.scss'
 
 import './App.scss'
 
-const ROW_HEIGHT = 30
-
 const N_ROWS = 10 ** 3
 const INFINITE_SCROLLING_N_ROWS = 30
-const N_COLS = 10
+const N_COLS = 20
 
 function cellRenderer ({
   key,
@@ -64,7 +62,7 @@ for (let index = 0; index < N_COLS; index++) {
     cellRenderer: cellRenderer,
     headerRenderer: headerRenderer,
     footerRenderer: footerRenderer,
-    width: 90
+    width: 100
   })
 }
 
@@ -198,66 +196,69 @@ class App extends React.Component {
     } = this.state
 
     return (
-      <div className='App'>
-        <div className='settings'>
-          <div>
-            <input
-              type='checkbox'
-              id='noRows'
-              value={noRows}
-              onChange={e => this.onNoRowsChanged(e.target.checked)}
-            />
-            <label htmlFor='noRows'> No rows</label>
+      <div className='container'>
+        <div className='App'>
+          <div className='settings'>
+            <div>
+              <input
+                type='checkbox'
+                id='noRows'
+                value={noRows}
+                onChange={e => this.onNoRowsChanged(e.target.checked)}
+              />
+              <label htmlFor='noRows'> No rows</label>
+            </div>
+            <div>
+              <label htmlFor='fixedColumnsLeftCount'>Fixed columns: </label>
+              <input
+                type='number'
+                id='fixedColumnsLeftCount'
+                value={fixedColumnsLeftCount}
+                min={0}
+                max={columns.length}
+                step={1}
+                onChange={e => this.onFixedColumnsLeftCountChange(parseInt(e.target.value) || 0)}
+              />
+            </div>
+            <div>
+              <input
+                type='checkbox'
+                id='infiniteScrolling'
+                value={infiniteScrolling}
+                onChange={e => this.onInfiniteScrolling(e.target.checked)}
+              />
+              <label htmlFor='infiniteScrolling'> Infinite scrolling</label>
+            </div>
+            <div>
+              <input
+                type='checkbox'
+                id='displayBottomUpwards'
+                value={displayBottomUpwards}
+                onChange={e => this.setDisplayBottomUpwards(e.target.checked)}
+              />
+              <label htmlFor='displayBottomUpwards'> Display Bottom Upwards</label>
+            </div>
           </div>
-          <div>
-            <label htmlFor='fixedColumnsLeftCount'>Fixed columns: </label>
-            <input
-              type='number'
-              id='fixedColumnsLeftCount'
-              value={fixedColumnsLeftCount}
-              min={0}
-              max={columns.length}
-              step={1}
-              onChange={e => this.onFixedColumnsLeftCountChange(parseInt(e.target.value) || 0)}
-            />
-          </div>
-          <div>
-            <input
-              type='checkbox'
-              id='infiniteScrolling'
-              value={infiniteScrolling}
-              onChange={e => this.onInfiniteScrolling(e.target.checked)}
-            />
-            <label htmlFor='infiniteScrolling'> Infinite scrolling</label>
-          </div>
-          <div>
-            <input
-              type='checkbox'
-              id='displayBottomUpwards'
-              value={displayBottomUpwards}
-              onChange={e => this.setDisplayBottomUpwards(e.target.checked)}
-            />
-            <label htmlFor='displayBottomUpwards'> Display Bottom Upwards</label>
-          </div>
+          <Table
+            className='example-table'
+            tableClassName='table table-bordered table-striped'
+            height={600}
+            rowHeight={50}
+            rows={rows}
+            columns={columns}
+            fixedColumnsLeftCount={fixedColumnsLeftCount}
+            headerCount={1}
+            footerCount={1}
+            noRowsRenderer={() => 'No rows'}
+            infiniteLoadBeginEdgeOffset={infiniteScrolling ? 150 : undefined}
+            isInfiniteLoading={infiniteScrolling ? this.state.isInfiniteLoading : undefined}
+            onInfiniteLoad={infiniteScrolling ? this.onInfiniteLoad : undefined}
+            getLoadingSpinner={() => <div>Loading...</div>}
+            displayBottomUpwards={displayBottomUpwards}
+            onColumnWidthChange={this.onColumnWidthChange}
+            onColumnOrderChange={this.onColumnOrderChange}
+          />
         </div>
-        <Table
-          className='example-table'
-          height={200}
-          rowHeight={ROW_HEIGHT}
-          rows={rows}
-          columns={columns}
-          fixedColumnsLeftCount={fixedColumnsLeftCount}
-          headerCount={1}
-          footerCount={1}
-          noRowsRenderer={() => 'No rows'}
-          infiniteLoadBeginEdgeOffset={infiniteScrolling ? 150 : undefined}
-          isInfiniteLoading={infiniteScrolling ? this.state.isInfiniteLoading : undefined}
-          onInfiniteLoad={infiniteScrolling ? this.onInfiniteLoad : undefined}
-          getLoadingSpinner={() => <div>Loading...</div>}
-          displayBottomUpwards={displayBottomUpwards}
-          onColumnWidthChange={this.onColumnWidthChange}
-          onColumnOrderChange={this.onColumnOrderChange}
-        />
       </div>
     )
   }

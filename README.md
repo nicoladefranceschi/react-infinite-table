@@ -4,6 +4,8 @@ React Infinite Table
 
 [![NPM version](https://img.shields.io/npm/v/react-infinite-table.svg?style=flat)](https://www.npmjs.com/package/react-infinite-table)
 ![NPM license](https://img.shields.io/npm/l/react-infinite-table.svg?style=flat)
+![npm bundle size](https://img.shields.io/bundlephobia/min/react-infinite-table)
+![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-infinite-table)
 [![NPM total downloads](https://img.shields.io/npm/dt/react-infinite-table.svg?style=flat)](https://npmcharts.com/compare/react-infinite-table?minimal=true)
 [![NPM monthly downloads](https://img.shields.io/npm/dm/react-infinite-table.svg?style=flat)](https://npmcharts.com/compare/react-infinite-table?minimal=true)
 
@@ -21,7 +23,7 @@ React Infinite Table
 - ✅ Column order changes (by dragging)
 - 🔜 Row selection
 - 🔜 Rows with different heights / free height
-- 🎉 Use the HTML `<table>` tags!
+- 🎉 Uses the HTML `<table>` standard tags!
 
 
 ## Getting started
@@ -99,19 +101,27 @@ const columns = [
 
 ## Similar packages 
 
-This packages has been inspired by some existing library dealing with tables in `react`.
+This package has been inspired by some existing library dealing with tables in `react`.
 
-Comparison of the packages
+The initial code started from a "fork" of the [`react-infinite`](https://github.com/seatgeek/react-infinite) package, that implements a scrollable container with a lot of items by rendering only DOM nodes that the user is able to see (or might soon see).
 
-| Feature        | **`react-infinite-table`** | `react-virtualized` |
-| -------------- |:---:|:---:|
-| Use HTML table tags: `<table>`, `<tr>`, `<td>`, ... | ✅ | ❌ |
-| Fixed columns  | ✅ | ❌ |
-| Fixed header   | ✅ | ✅ |
-| Fixed footer   | ✅ | ❌ |
-| Column resize (by dragging)  | ✅ | ❌ |
-| Column reorder (by dragging) | ✅ | ❌ |
-| No use of `javascript` to sync scroll between fixed columns/rows | ✅ | ❌ |
+The definition of the columns and the rendering of the cells is inspired by [`react-virtualized`](https://github.com/bvaughn/react-virtualized).
+
+CSS is used to fix header, footer and some columns, using `position: sticky`. This has been inspired by [`ember-table`](https://github.com/Addepar/ember-table).
+
+Comparison of similar packages:
+
+| Feature        | **`react-infinite-table`** | [`react-virtualized`](https://github.com/bvaughn/react-virtualized) | [`react-base-table`](https://github.com/Autodesk/react-base-table) | 
+| -------------- |:---:|:---:|:---:|:---:|
+| HTML `<table>` standard tags | ✅ | ❌ | ❌ |
+| Fixed columns  | ✅ | ❌ | ✅ |
+| Fixed header   | ✅ | ✅ | ✅ |
+| Fixed footer   | ✅ | ❌ | ❌ |
+| Column resize (by dragging)  | ✅ | ❌ | ✅ |
+| Column reorder (by dragging) | ✅ | ❌ | ❌ |
+| No use of `javascript` to sync scroll between fixed columns/rows | ✅ | ❌ | ❌ |
+| Size | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-infinite-table) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-infinite-table) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-virtualized) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-virtualized) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-base-table) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-base-table)
+
 
 
 ## Dependencies
@@ -125,6 +135,11 @@ NPM will not automatically install these for you but it will show you a warning 
 
 
 ## Documentation
+
+TODO: 
+
+
+### Style
 
 TODO: 
 

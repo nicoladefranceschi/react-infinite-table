@@ -34,6 +34,7 @@ export class Table extends React.Component {
     displayBottomUpwards: PropTypes.bool.isRequired,
 
     className: PropTypes.string,
+    tableClassName: PropTypes.string,
 
     onColumnWidthChange: PropTypes.func,
     onColumnOrderChange: PropTypes.func
@@ -405,8 +406,6 @@ export class Table extends React.Component {
 
       this._initialColumnWidth = columnWidth
     } else if (isOrdering) {
-      this._oldStyleData = {}
-
       cellEl.classList.add('react-infinite-column-reordering')
       this._isDraggingReorder = true
 
@@ -439,22 +438,6 @@ export class Table extends React.Component {
         }
         this._isDraggingReorderStarted = true
         cellEl.classList.add('react-infinite-column-reordering-started')
-
-        this._oldStyleData = {
-          marginLeft: cellEl.style.marginLeft,
-          borderLeft: cellEl.style.borderLeft,
-          width: cellEl.style.width,
-          maxWidth: cellEl.style.maxWidth,
-          minWidth: cellEl.style.minWidth
-        }
-
-        const addedBorderWidth = 1
-        const width = cellEl.getBoundingClientRect().width + addedBorderWidth
-        cellEl.style.marginLeft = `${-addedBorderWidth}px`
-        cellEl.style.borderLeft = `${addedBorderWidth}px solid red`
-        cellEl.style.width = `${width}px`
-        cellEl.style.maxWidth = `${width}px`
-        cellEl.style.minWidth = `${width}px`
       }
 
       this.reorderColumn(x, true)
@@ -475,14 +458,6 @@ export class Table extends React.Component {
       this.resizeColumn(columnIndex, Math.max(width + data.x - this._initialDataX, minColumnWidth), false)
     }
     if (this._isDraggingReorder) {
-      const oldStyleData = this._oldStyleData
-      for (const key in oldStyleData) {
-        if (Object.prototype.hasOwnProperty.call(oldStyleData, key)) {
-          const value = oldStyleData[key]
-          cellEl.style[key] = value
-        }
-      }
-
       if (this._isDraggingReorderStarted) {
         const x = data.x - this._initialDataX
         this.reorderColumn(x, false)
@@ -493,7 +468,6 @@ export class Table extends React.Component {
     delete this._initialDataX
     delete this._isDraggingResizer
     delete this._isDraggingReorder
-    delete this._oldStyleData
     delete this._columnDrag
     delete this._columnOrdering
     delete this._isDraggingReorderStarted
@@ -514,7 +488,11 @@ export class Table extends React.Component {
           className={classNames(
             (rowIndex % 2 === 0) ? 'tr-odd' : 'tr-even'
           )}
-          style={infiniteHelpers.buildHeightStyle(rowHeight)}
+          style={{
+            height: Math.ceil(rowHeight),
+            minHeight: Math.ceil(rowHeight),
+            maxHeight: Math.ceil(rowHeight)
+          }}
         >
           {this.props.columns.map((column, columnIndex) => {
             const classes = [
@@ -698,7 +676,7 @@ export class Table extends React.Component {
           onScroll={this.handleScroll}
         >
           <div className='react-infinite-table-scroll-smoother' />
-          <table>
+          <table className={this.props.tableClassName}>
             {this.props.headerCount > 0 && (
               <thead>
                 {this.renderHeaderRows()}
@@ -709,16 +687,23 @@ export class Table extends React.Component {
               style={infiniteScrollStyles}
             >
               <tr
-                ref={c => { this.topSpacer = c }}
-                style={infiniteHelpers.buildHeightStyle(topSpacerHeight)}
+                className='react-infinite-table-spacer'
+                ref={c => { this.topSpacer = c }} style={{
+                  height: Math.ceil(topSpacerHeight)
+                }}
               />
+              <tr className='react-infinite-table-spacer' style={{ height: 0 }} /> {/* to fix odd-even numbers */}
               {this.props.displayBottomUpwards && loadingSpinner}
               {displayables}
               {!this.props.displayBottomUpwards && loadingSpinner}
-              <tr
-                ref={c => { this.bottomSpacer = c }}
-                style={infiniteHelpers.buildHeightStyle(bottomSpacerHeight, 'minHeight')}
-              />
+              <tr className='react-infinite-table-spacer' ref={c => { this.bottomSpacer = c }}>
+                <td>
+                  <div style={{
+                    minHeight: Math.ceil(bottomSpacerHeight)
+                  }}
+                  />
+                </td>
+              </tr>
             </tbody>
             {this.props.footerCount > 0 && (
               <tfoot>

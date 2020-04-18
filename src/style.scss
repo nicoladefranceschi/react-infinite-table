@@ -27,10 +27,12 @@
     table-layout: fixed;
     box-sizing: border-box;
     min-height: 100%;
+    margin: 0px;
   }
 
   td, th {
     box-sizing: border-box;
+    background: white;
 
     &.is-fixed-left {
       position: sticky;
@@ -113,11 +115,6 @@
       width: 4px;
       cursor: col-resize;
     }
-
-
-    &.react-infinite-column-reordering-started {
-      position: absolute;
-    }
   }
 
   tr.react-infinite-table-loading-no-rows {
@@ -131,6 +128,14 @@
         left: 1px;
         width: fit-content;
       }  
+    }
+  }
+
+  tr.react-infinite-table-spacer {
+    td {
+      border: none;
+      padding: 0px;
+      margin: 0px;
     }
   }
 }
