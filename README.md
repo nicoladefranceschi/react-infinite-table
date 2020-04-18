@@ -152,7 +152,7 @@ NPM will not automatically install these for you but it will show you a warning 
 
 | Property          | Type      | Required? | Description       |
 | :---------------- | :-------- | :-------: | :---------------- |
-| height            | Number    |     ✓     | The height of the table. If you want the table to take the height of the container, you should have a look at the [`AutoSizer` component](https://github.com/bvaughn/react-virtualized/blob/master/docs/AutoSizer.md) |
+| height            | Number    |     ✓     | The height of the table. If you want the table to take the height of the container, you should have a look at the [`AutoSizer` component](https://github.com/bvaughn/react-virtualized-auto-sizer) |
 | overscanSize      | Number    |           | How much you want to render above/below the visible bounds of the table (in pixels). Default: `overscanSize: 500` |
 | rowHeight         | Number    |     ✓     | A fixed row height _(TODO: planning to allow undefined, and each row will auto size to fit content!)_ |
 | rows              | Array     |     ✓     | An array of data, one object for each row. There are no required keys, but if you want to use the "row selection" feature, an unique "row id" will be needed. |
@@ -175,18 +175,6 @@ NPM will not automatically install these for you but it will show you a warning 
 | onColumnWidthChange | Function |          | Callback called when a column's width has changed. You should update the Column definition accordingly. `(columnIndex, width) => { /* update columns... */ }`. Default: `onColumnWidthChange: undefined` - Column's can't be resized. |
 | onColumnOrderChange | Function |          | Callback called when a column order position is changed from `fromIndex` to `toIndex`. You should update the Columns array accordingly. `(fromIndex, toIndex) => { /* update columns... */ }`. Default: `onColumnOrderChange: undefined` - Column's can't be reordered. <br/> You can use the helper function `reorderColumns`. [Learn more](#reordercolumns) |
 
-
-#### reorderColumns
-
-This function is provided as an helper to update the `columns` array after the columns have been reorderer.
-
-```jsx
-import { reorderColumns } from 'react-infinite-table'
-
-// ...
-
-const newColumns = reorderColumns(oldColumns, fromIndex, toIndex)
-```
 
 ### Column Prop Types
 
@@ -252,12 +240,27 @@ It should implement the following signature:
   columnIndex: number,
   column: object
 }) => {
-  return <th key={key} className={className}>{/*...*/}</th>
+  return <td key={key} className={className}>{/*...*/}</td>
 }
 ```
 
 You should return a `<td>` node (or a `Component` that renders a `td`) since this node will be rendered in the `tfoot > tr` section of the table.
 Always pass the `key` and `className` props.
+
+
+### Utils
+
+#### reorderColumns
+
+This function is provided as an helper to update the `columns` array after the columns have been reorderer.
+
+```jsx
+import { reorderColumns } from 'react-infinite-table'
+
+// ...
+
+const newColumns = reorderColumns(oldColumns, fromIndex, toIndex)
+```
 
 
 ### Style
