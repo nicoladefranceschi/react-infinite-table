@@ -112,7 +112,7 @@ CSS is used to fix header, footer and some columns, using `position: sticky`. Th
 Comparison of similar packages:
 
 | Feature        | **`react-infinite-table`** | [`react-virtualized`](https://github.com/bvaughn/react-virtualized) | [`react-base-table`](https://github.com/Autodesk/react-base-table) | 
-| -------------- |:---:|:---:|:---:|:---:|
+| -------------- |:---:|:---:|:---:|
 | HTML `<table>` standard tags | ✅ | ❌ | ❌ |
 | Fixed columns  | ✅ | ❌ | ✅ |
 | Fixed header   | ✅ | ✅ | ✅ |
@@ -120,7 +120,7 @@ Comparison of similar packages:
 | Column resize (by dragging)  | ✅ | ❌ | ✅ |
 | Column reorder (by dragging) | ✅ | ❌ | ❌ |
 | No use of `javascript` to sync scroll between fixed columns/rows | ✅ | ❌ | ❌ |
-| Size | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-infinite-table) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-infinite-table) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-virtualized) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-virtualized) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-base-table) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-base-table)
+| Size | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-infinite-table) <br/> ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-infinite-table) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-virtualized) <br/>  ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-virtualized) | ![npm bundle size](https://img.shields.io/bundlephobia/min/react-base-table) <br/> ![npm bundle size](https://img.shields.io/bundlephobia/minzip/react-base-table) |
 
 
 
