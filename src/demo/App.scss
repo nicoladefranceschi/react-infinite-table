@@ -30,7 +30,13 @@ $table-accent-bg: #F2F2F2;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-  }  
+  }
+
+  tbody tr.tr-selected td {
+    background-color: $primary;
+    border-color: $primary;
+    color: $white;
+  }
 }
 
 .settings {

@@ -1,4 +1,3 @@
-
 React Infinite Table
 ===
 
@@ -21,9 +20,10 @@ React Infinite Table
 - ✅ Fixed left column(s)
 - ✅ Column resize
 - ✅ Column order changes (by dragging)
-- 🔜 Row selection
+- ✅ Row selection (handling shift/modifier during click)
 - 🔜 Rows with different heights / free height
 - 🎉 Uses the HTML `<table>` standard tags!
+- 🎉 No use of `javascript` to sync scroll between fixed columns/rows!
 
 
 ## Getting started
@@ -75,6 +75,7 @@ const columns = [
 
 <Table
   className='example-table'
+  tableClassName='table table-bordered table-striped' // example using bootstrap
   height={200}
   rowHeight={30}
   rows={rows}
@@ -84,9 +85,14 @@ const columns = [
   noRowsRenderer={() => 'No rows'}
   // keep the first column fixed:
   fixedColumnsLeftCount={1}
+  // row selection
+  rowIdKey='id'
+  selectedRows={this.state.selectedRows}
+  onSelectionChange={selectedRows => { this.setState({selectedRows}) }}
+  canSelectMultipleRows={true|false}
   // infinite load:
   infiniteLoadBeginEdgeOffset={150}
-  isInfiniteLoading={true/false}
+  isInfiniteLoading={true|false}
   onInfiniteLoad={() => { /* fetch your data ... */ })}
   getLoadingSpinner={() => <div>Loading...</div>}
   // display from bottom upwards, like a Chat or Message Box 

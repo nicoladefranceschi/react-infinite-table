@@ -102,7 +102,9 @@ class App extends React.Component {
     displayBottomUpwards: false,
     infiniteScrolling: false,
     rows: createAllRows(),
-    isInfiniteLoading: false
+    isInfiniteLoading: false,
+    selectedRows: {},
+    canSelectMultipleRows: true
   }
 
   componentWillUnmount () {
@@ -196,6 +198,18 @@ class App extends React.Component {
     })
   }
 
+  onSelectionChange = selectedRows => {
+    this.setState({
+      selectedRows: selectedRows
+    })
+  }
+
+  setCanSelectMultipleRows = canSelectMultipleRows => {
+    this.setState({
+      canSelectMultipleRows: canSelectMultipleRows
+    })
+  }
+
   render () {
     const {
       numberOfColumns,
@@ -204,7 +218,9 @@ class App extends React.Component {
       infiniteScrolling,
       displayBottomUpwards,
       rows,
-      columns
+      columns,
+      selectedRows,
+      canSelectMultipleRows
     } = this.state
 
     return (
@@ -215,7 +231,7 @@ class App extends React.Component {
               <input
                 className='form-check-input' type='checkbox'
                 id='noRows'
-                value={noRows}
+                checked={noRows}
                 onChange={e => this.onNoRowsChanged(e.target.checked)}
               />
               <label className='form-check-label' htmlFor='noRows'>
@@ -251,7 +267,7 @@ class App extends React.Component {
               <input
                 className='form-check-input' type='checkbox'
                 id='infiniteScrolling'
-                value={infiniteScrolling}
+                checked={infiniteScrolling}
                 onChange={e => this.onInfiniteScrolling(e.target.checked)}
               />
               <label htmlFor='infiniteScrolling'> Infinite scrolling</label>
@@ -260,10 +276,19 @@ class App extends React.Component {
               <input
                 className='form-check-input' type='checkbox'
                 id='displayBottomUpwards'
-                value={displayBottomUpwards}
+                checked={displayBottomUpwards}
                 onChange={e => this.setDisplayBottomUpwards(e.target.checked)}
               />
               <label htmlFor='displayBottomUpwards'> Display Bottom Upwards</label>
+            </div>
+            <div className='form-check'>
+              <input
+                className='form-check-input' type='checkbox'
+                id='canSelectMultipleRows'
+                checked={canSelectMultipleRows}
+                onChange={e => this.setCanSelectMultipleRows(e.target.checked)}
+              />
+              <label htmlFor='canSelectMultipleRows'> Can select multiple rows</label>
             </div>
           </div>
           <Table
@@ -277,6 +302,10 @@ class App extends React.Component {
             headerCount={1}
             footerCount={1}
             noRowsRenderer={() => 'No rows'}
+            rowIdKey='i'
+            selectedRows={selectedRows}
+            canSelectMultipleRows={canSelectMultipleRows}
+            onSelectionChange={this.onSelectionChange}
             infiniteLoadBeginEdgeOffset={infiniteScrolling ? 150 : undefined}
             isInfiniteLoading={infiniteScrolling ? this.state.isInfiniteLoading : undefined}
             onInfiniteLoad={infiniteScrolling ? this.onInfiniteLoad : undefined}

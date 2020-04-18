@@ -26,6 +26,11 @@ export class Table extends React.Component {
 
     noRowsRenderer: PropTypes.func,
 
+    rowIdKey: PropTypes.string,
+    selectedRows: PropTypes.object,
+    canSelectMultipleRows: PropTypes.bool,
+    onSelectionChange: PropTypes.func,
+
     infiniteLoadBeginEdgeOffset: PropTypes.number,
     isInfiniteLoading: PropTypes.bool,
     onInfiniteLoad: PropTypes.func,
@@ -63,6 +68,7 @@ export class Table extends React.Component {
   shouldAttachToBottom = false;
   preservedScrollState = 0;
   loadingSpinnerHeight = 0;
+  lastSelectedRowIndex = -1
 
   // Refs
   scrollable = null;
@@ -159,8 +165,13 @@ export class Table extends React.Component {
       }
     }
 
-    const hasLoadedMoreChildren = this.props.rows !== prevProps.rows
-    if (hasLoadedMoreChildren) {
+    const rowsChanged = this.props.rows !== prevProps.rows
+
+    if (rowsChanged) {
+      this.lastSelectedRowIndex = -1
+    }
+
+    if (rowsChanged) {
       var newApertureState = infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
         this.props.overscanSize,
         this.state.infiniteComputer,
@@ -170,7 +181,7 @@ export class Table extends React.Component {
     }
 
     const isMissingVisibleRows =
-      hasLoadedMoreChildren &&
+      rowsChanged &&
       !this.hasAllVisibleItems() &&
       !this.props.isInfiniteLoading
     if (isMissingVisibleRows) {
@@ -324,6 +335,79 @@ export class Table extends React.Component {
     }
   }
 
+  setSelection (rowIndex, modifier, shift) {
+    if (!this.props.onSelectionChange) {
+      return
+    }
+    const row = this.props.rows[rowIndex]
+    const rowId = row[this.props.rowIdKey]
+    if (typeof rowId !== 'undefined') {
+      const selectedRows = this._getNewSelectedRows(rowIndex, rowId, modifier, shift)
+      this.lastSelectedRowIndex = rowIndex
+      this.props.onSelectionChange(selectedRows)
+    } else {
+      this.lastSelectedRowIndex = -1
+    }
+  }
+
+  resetSelection () {
+    if (!this.props.onSelectionChange) {
+      return
+    }
+    this.lastSelectedRowIndex = -1
+    this.props.onSelectionChange({})
+  }
+
+  _getNewSelectedRows (index, key, toggle, shift) {
+    const currentSelected = this.props.selectedRows || {}
+    const single = !this.props.canSelectMultipleRows
+    const lastSelectedIndex = this.lastSelectedRowIndex
+    if (lastSelectedIndex === -1) {
+      shift = false
+    }
+    if (single) {
+      if (currentSelected[key]) {
+        return {}
+      } else {
+        return {
+          [key]: true
+        }
+      }
+    } else if (toggle) {
+      const newSelected = { ...currentSelected }
+      if (newSelected[key]) {
+        delete newSelected[key]
+      } else {
+        newSelected[key] = true
+      }
+      return newSelected
+    } else if (shift) {
+      let from, to
+      if (index < lastSelectedIndex) {
+        from = index
+        to = lastSelectedIndex
+      } else {
+        from = lastSelectedIndex
+        to = index
+      }
+      const newSelected = { ...currentSelected }
+      for (let i = from; i <= to; i++) {
+        const row = this.props.rows[i]
+        const rowId = row[this.props.rowIdKey]
+        if (typeof rowId === 'undefined') {
+          continue
+        }
+        const key = rowId
+        newSelected[key] = true
+      }
+      return newSelected
+    } else {
+      return {
+        [key]: true
+      }
+    }
+  }
+
   getColumnWidth (columnIndex) {
     const column = this.props.columns[columnIndex]
     return this._columnDrag && this._columnDrag.columnIndex === columnIndex
@@ -473,26 +557,75 @@ export class Table extends React.Component {
     delete this._isDraggingReorderStarted
   }
 
+  _onRowMouseDown (event, rowIndex) {
+    const target = event.target
+    const startX = event.clientX
+    const startY = event.clientY
+
+    const _onRowMouseUp = (e) => {
+      _cleanup()
+
+      // clear text selection
+      if (window.getSelection) {
+        if (window.getSelection().empty) { // Chrome
+          window.getSelection().empty()
+        } else if (window.getSelection().removeAllRanges) { // Firefox
+          window.getSelection().removeAllRanges()
+        }
+      } else if (document.selection) { // IE?
+        document.selection.empty()
+      }
+
+      const modifier = e.ctrlKey || e.metaKey
+      const shift = e.shiftKey
+      this.setSelection(rowIndex, modifier, shift)
+    }
+
+    const _onRowMouseMove = (e) => {
+      const endX = e.clientX
+      const endY = e.clientY
+      if (Math.pow(endX - startX, 2) + Math.pow(endY - startY, 2) < 4) {
+        return
+      }
+      _cleanup()
+    }
+
+    function _cleanup () {
+      target.removeEventListener('mouseup', _onRowMouseUp)
+      target.removeEventListener('mousemove', _onRowMouseMove)
+    }
+
+    target.addEventListener('mouseup', _onRowMouseUp)
+    target.addEventListener('mousemove', _onRowMouseMove)
+  }
+
   renderRows (displayIndexStart, displayIndexEnd) {
     const rows = []
     const rowsData = this.props.rows
+    const selectedRows = this.props.selectedRows || {}
+    const rowIdKey = this.props.rowIdKey
 
     for (let rowIndex = displayIndexStart; rowIndex <= displayIndexEnd; rowIndex++) {
       const rowHeight = typeof this.props.rowHeight === 'number' ? this.props.rowHeight : this.props.rowHeight(rowIndex)
 
       const rowData = rowsData[rowIndex]
 
+      const rowId = rowIdKey && rowData[rowIdKey]
+      const isSelected = typeof rowId !== 'undefined' && selectedRows[rowId]
+
       const row = (
         <tr
           key={rowIndex}
           className={classNames(
-            (rowIndex % 2 === 0) ? 'tr-odd' : 'tr-even'
+            (rowIndex % 2 === 0) ? 'tr-odd' : 'tr-even',
+            isSelected && 'tr-selected'
           )}
           style={{
             height: Math.ceil(rowHeight),
             minHeight: Math.ceil(rowHeight),
             maxHeight: Math.ceil(rowHeight)
           }}
+          onMouseDown={e => this._onRowMouseDown(e, rowIndex)}
         >
           {this.props.columns.map((column, columnIndex) => {
             const classes = [

@@ -18,7 +18,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       filename: 'index.html',
       inject: true,
-      template: './index.html'
+      template: './src/demo/index.html'
     }),
     new webpack.DefinePlugin({
       'process.env': {
