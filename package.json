@@ -1,6 +1,6 @@
 {
   "name": "react-infinite-table",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "React table with infinite rows and much more!",
   "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
