@@ -54,16 +54,19 @@ function footerRenderer ({
   )
 }
 
-const _columns = []
+function createColumns (numberOfColumns) {
+  const _columns = []
 
-for (let index = 0; index < N_COLS; index++) {
-  _columns.push({
-    i: index,
-    cellRenderer: cellRenderer,
-    headerRenderer: headerRenderer,
-    footerRenderer: footerRenderer,
-    width: 100
-  })
+  for (let index = 0; index < numberOfColumns; index++) {
+    _columns.push({
+      i: index,
+      cellRenderer: cellRenderer,
+      headerRenderer: headerRenderer,
+      footerRenderer: footerRenderer,
+      width: 100
+    })
+  }
+  return _columns
 }
 
 function createAllRows () {
@@ -93,12 +96,13 @@ function recreateRows (infiniteScrolling, displayBottomUpwards) {
 class App extends React.Component {
   state = {
     noRows: false,
+    numberOfColumns: N_COLS,
+    columns: createColumns(N_COLS),
     fixedColumnsLeftCount: 2,
     displayBottomUpwards: false,
     infiniteScrolling: false,
     rows: createAllRows(),
-    isInfiniteLoading: false,
-    columns: _columns
+    isInfiniteLoading: false
   }
 
   componentWillUnmount () {
@@ -110,6 +114,13 @@ class App extends React.Component {
     this.setState({
       noRows: noRows,
       rows: rows
+    })
+  }
+
+  onNumberOfColumnsChange = numberOfColumns => {
+    this.setState({
+      numberOfColumns: numberOfColumns,
+      columns: createColumns(numberOfColumns)
     })
   }
 
@@ -187,6 +198,7 @@ class App extends React.Component {
 
   render () {
     const {
+      numberOfColumns,
       noRows,
       fixedColumnsLeftCount,
       infiniteScrolling,
@@ -199,18 +211,33 @@ class App extends React.Component {
       <div className='container'>
         <div className='App'>
           <div className='settings'>
-            <div>
+            <div className='form-check'>
               <input
-                type='checkbox'
+                className='form-check-input' type='checkbox'
                 id='noRows'
                 value={noRows}
                 onChange={e => this.onNoRowsChanged(e.target.checked)}
               />
-              <label htmlFor='noRows'> No rows</label>
+              <label className='form-check-label' htmlFor='noRows'>
+                No rows
+              </label>
             </div>
-            <div>
-              <label htmlFor='fixedColumnsLeftCount'>Fixed columns: </label>
+            <div className='form-inline'>
+              <label className='mr-2' htmlFor='numberOfColumns'>Number of columns: </label>
               <input
+                className='form-control'
+                type='number'
+                id='numberOfColumns'
+                value={numberOfColumns}
+                min={1}
+                step={1}
+                onChange={e => this.onNumberOfColumnsChange(parseInt(e.target.value) || N_COLS)}
+              />
+            </div>
+            <div className='form-inline'>
+              <label className='mr-2' htmlFor='fixedColumnsLeftCount'>Fixed columns: </label>
+              <input
+                className='form-control'
                 type='number'
                 id='fixedColumnsLeftCount'
                 value={fixedColumnsLeftCount}
@@ -220,18 +247,18 @@ class App extends React.Component {
                 onChange={e => this.onFixedColumnsLeftCountChange(parseInt(e.target.value) || 0)}
               />
             </div>
-            <div>
+            <div className='form-check'>
               <input
-                type='checkbox'
+                className='form-check-input' type='checkbox'
                 id='infiniteScrolling'
                 value={infiniteScrolling}
                 onChange={e => this.onInfiniteScrolling(e.target.checked)}
               />
               <label htmlFor='infiniteScrolling'> Infinite scrolling</label>
             </div>
-            <div>
+            <div className='form-check'>
               <input
-                type='checkbox'
+                className='form-check-input' type='checkbox'
                 id='displayBottomUpwards'
                 value={displayBottomUpwards}
                 onChange={e => this.setDisplayBottomUpwards(e.target.checked)}

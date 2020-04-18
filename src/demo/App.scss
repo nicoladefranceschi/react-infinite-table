@@ -34,5 +34,10 @@ $table-accent-bg: #F2F2F2;
 }
 
 .settings {
+  padding-top: 10px;
   padding-bottom: 20px;
+  
+  > div {
+    padding-top: 10px;
+  }
 }
