@@ -98,7 +98,7 @@ class App extends React.Component {
     noRows: false,
     numberOfColumns: N_COLS,
     columns: createColumns(N_COLS),
-    fixedColumnsLeftCount: 2,
+    fixedColumnsCount: 2,
     displayBottomUpwards: false,
     infiniteScrolling: false,
     rows: createAllRows(),
@@ -175,9 +175,9 @@ class App extends React.Component {
     }, 2000)
   }
 
-  onFixedColumnsLeftCountChange = fixedColumnsLeftCount => {
+  onFixedColumnsCountChange = fixedColumnsCount => {
     this.setState({
-      fixedColumnsLeftCount: fixedColumnsLeftCount
+      fixedColumnsCount: fixedColumnsCount
     })
   }
 
@@ -214,7 +214,7 @@ class App extends React.Component {
     const {
       numberOfColumns,
       noRows,
-      fixedColumnsLeftCount,
+      fixedColumnsCount,
       infiniteScrolling,
       displayBottomUpwards,
       rows,
@@ -257,16 +257,16 @@ class App extends React.Component {
               />
             </div>
             <div className='form-inline'>
-              <label className='mr-2' htmlFor='fixedColumnsLeftCount'>Fixed columns: </label>
+              <label className='mr-2' htmlFor='fixedColumnsCount'>Fixed columns: </label>
               <input
                 className='form-control'
                 type='number'
-                id='fixedColumnsLeftCount'
-                value={fixedColumnsLeftCount}
+                id='fixedColumnsCount'
+                value={fixedColumnsCount}
                 min={0}
                 max={columns.length}
                 step={1}
-                onChange={e => this.onFixedColumnsLeftCountChange(parseInt(e.target.value) || 0)}
+                onChange={e => this.onFixedColumnsCountChange(parseInt(e.target.value) || 0)}
               />
             </div>
             <div className='form-check'>
@@ -304,7 +304,7 @@ class App extends React.Component {
             rowHeight={50}
             rows={rows}
             columns={columns}
-            fixedColumnsLeftCount={fixedColumnsLeftCount}
+            fixedColumnsCount={fixedColumnsCount}
             headerCount={1}
             footerCount={1}
             noRowsRenderer={() => 'No rows'}

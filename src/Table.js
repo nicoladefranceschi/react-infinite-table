@@ -15,14 +15,14 @@ export class Table extends React.Component {
     overscanSize: PropTypes.number,
     rows: PropTypes.array.isRequired,
     columns: PropTypes.arrayOf(PropTypes.shape({
-      cellRenderer: PropTypes.func,
+      width: PropTypes.number.isRequired,
+      cellRenderer: PropTypes.func.isRequired,
       headerRenderer: PropTypes.func,
-      footerRenderer: PropTypes.func,
-      width: PropTypes.number.isRequired
+      footerRenderer: PropTypes.func
     })).isRequired,
     headerCount: PropTypes.number,
     footerCount: PropTypes.number,
-    fixedColumnsLeftCount: PropTypes.number,
+    fixedColumnsCount: PropTypes.number,
 
     noRowsRenderer: PropTypes.func,
 
@@ -47,6 +47,12 @@ export class Table extends React.Component {
 
   static defaultProps = {
     overscanSize: 500,
+
+    headerCount: 1,
+    footerCount: 0,
+    fixedColumnsCount: 0,
+
+    canSelectMultipleRows: false,
 
     infiniteLoadBeginEdgeOffset: undefined,
     onInfiniteLoad: () => {},
@@ -190,7 +196,7 @@ export class Table extends React.Component {
 
     if (
       this.props.columns !== prevProps.columns ||
-      this.props.fixedColumnsLeftCount !== prevProps.fixedColumnsLeftCount
+      this.props.fixedColumnsCount !== prevProps.fixedColumnsCount
     ) {
       this._style.innerHTML = this.getStyles()
     }
@@ -451,7 +457,7 @@ export class Table extends React.Component {
         } else if (columnIndex <= this._columnOrdering.toIndex && columnIndex > this._columnOrdering.fromIndex) {
           others += `transform: translateX(${-this._columnOrdering.width}px);`
         }
-      } else if (this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+      } else if (this.props.fixedColumnsCount && columnIndex < this.props.fixedColumnsCount) {
         others += `left: ${left}px`
       }
 
@@ -632,7 +638,7 @@ export class Table extends React.Component {
               'react-infinite-table-col-' + columnIndex
             ]
 
-            if (this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+            if (this.props.fixedColumnsCount && columnIndex < this.props.fixedColumnsCount) {
               classes.push('is-fixed-left')
             }
 
@@ -668,7 +674,7 @@ export class Table extends React.Component {
               'react-infinite-table-col-' + columnIndex
             ]
 
-            if (this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+            if (this.props.fixedColumnsCount && columnIndex < this.props.fixedColumnsCount) {
               classes.push('is-fixed-left')
             }
 
@@ -725,7 +731,7 @@ export class Table extends React.Component {
               'react-infinite-table-col-' + columnIndex
             ]
 
-            if (this.props.fixedColumnsLeftCount && columnIndex < this.props.fixedColumnsLeftCount) {
+            if (this.props.fixedColumnsCount && columnIndex < this.props.fixedColumnsCount) {
               classes.push('is-fixed-left')
             }
 
