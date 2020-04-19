@@ -1,0 +1,7 @@
+src/**/*
+!src/style.scss
+.babelrc
+.eslintrc
+build
+webpack.config.js
+build_for_selfware.sh
