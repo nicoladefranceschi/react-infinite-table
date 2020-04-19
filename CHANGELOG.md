@@ -1,5 +1,9 @@
 ## Changelog
 
+##### 1.2.2
+
+- fix: handle scroll during column dragging
+
 ##### 1.2.1
 
 - .npmignore

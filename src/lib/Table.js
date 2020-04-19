@@ -475,8 +475,10 @@ export default class Table extends React.Component {
         } else if (columnIndex <= this._columnOrdering.toIndex && columnIndex > this._columnOrdering.fromIndex) {
           others += `transform: translateX(${-this._columnOrdering.width}px);`
         }
-      } else if (this.props.fixedColumnsCount && columnIndex < this.props.fixedColumnsCount) {
-        others += `left: ${left}px`
+      }
+
+      if (this.props.fixedColumnsCount && columnIndex < this.props.fixedColumnsCount) {
+        others += `left: ${left}px;`
       }
 
       return `
@@ -506,24 +508,36 @@ export default class Table extends React.Component {
     }
 
     this._headerDraggingColumnIndex = columnIndex
+    this._headerDraggingLastMouseEvent = { clientX: event.clientX, clientY: event.clientY }
+
     this._onStartDragging(columnIndex, event, data, th, canResizeColumns, canChangeColumnsOrder)
 
     addEvent(document, 'mousemove', this._onHeaderMouseMove)
     addEvent(document, 'mouseup', this._onHeaderMouseUp)
+    addEvent(this.scrollable, 'scroll', this._onHeaderMouseScroll)
   }
 
   _onHeaderMouseMove = event => {
     const columnIndex = this._headerDraggingColumnIndex
     const data = offsetXYFromParent(event, this.scrollable)
+    this._headerDraggingLastMouseEvent = { clientX: event.clientX, clientY: event.clientY }
     this._onDragging(columnIndex, event, data)
+  }
+
+  _onHeaderMouseScroll = event => {
+    const columnIndex = this._headerDraggingColumnIndex
+    const data = offsetXYFromParent(this._headerDraggingLastMouseEvent, this.scrollable)
+    this._onDragging(columnIndex, null, data)
   }
 
   _onHeaderMouseUp = event => {
     const columnIndex = this._headerDraggingColumnIndex
     const data = offsetXYFromParent(event, this.scrollable)
     delete this._headerDraggingColumnIndex
+    delete this._headerDraggingLastMouseEvent
     removeEvent(document, 'mousemove', this._onHeaderMouseMove)
     removeEvent(document, 'mouseup', this._onHeaderMouseUp)
+    removeEvent(this.scrollable, 'scroll', this._onHeaderMouseScroll)
     this._onStopDragging(columnIndex, event, data)
   }
 
@@ -580,11 +594,11 @@ export default class Table extends React.Component {
     }
   }
 
-  _onDragging = (columnIndex, event, data) => {
+  _onDragging = (columnIndex, eventOrNull, data) => {
     const cellEl = this._draggingCell
 
     if (this._isDraggingResizer) {
-      event.stopPropagation()
+      eventOrNull && eventOrNull.stopPropagation()
       const width = this._initialColumnWidth
       const minColumnWidth = 40
       this.resizeColumn(columnIndex, Math.max(width + data.x - this._initialDataX, minColumnWidth), true)
