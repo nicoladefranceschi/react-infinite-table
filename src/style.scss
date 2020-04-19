@@ -10,7 +10,6 @@
     z-index: 1;
     -webkit-overflow-scrolling: touch;
     overflow: auto;
-    position: relative;
   }
 
   .react-infinite-table-scroll-smoother {
@@ -37,9 +36,17 @@
     margin: 0px;
     max-width: 100%;
     width: auto;
+  }
 
-    &.react-infinite-table-fill {
+  &.react-infinite-table-fill {
+    table {
       width: 100%;
+    }
+    .react-infinite-table-wrapper {
+      width: 100%;
+    }
+    .react-infinite-prevent-table-fill {
+      flex-grow: 0;
     }
   }
 

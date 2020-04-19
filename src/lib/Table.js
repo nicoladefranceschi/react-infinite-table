@@ -896,6 +896,7 @@ export default class Table extends React.Component {
         id={this._id}
         className={classNames(
           'react-infinite-table',
+          this.props.fillTableWidth && 'react-infinite-table-fill',
           this.props.className
         )}
         style={this.props.style}
@@ -908,11 +909,7 @@ export default class Table extends React.Component {
           onScroll={this.handleScroll}
         >
           <div className='react-infinite-table-scroll-smoother' />
-          <table className={classNames(
-            this.props.fillTableWidth && 'react-infinite-table-fill',
-            this.props.tableClassName
-          )}
-          >
+          <table className={this.props.tableClassName}>
             {this.props.headerCount > 0 && (
               <thead
                 ref={el => { this._thead = el }}
@@ -951,7 +948,7 @@ export default class Table extends React.Component {
             )}
           </table>
         </div>
-        {!this.props.fillTableWidth && <div className='react-infinite-prevent-table-fill' />}
+        <div className='react-infinite-prevent-table-fill' />
       </div>
     )
   }
