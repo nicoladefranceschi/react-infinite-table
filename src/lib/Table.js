@@ -1,10 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
-import { DraggableCore } from 'react-draggable'
 import * as infiniteHelpers from './utils/infiniteHelpers'
 import checkProps from './utils/checkProps'
 import Cell from './Cell'
+import { offsetXYFromParent, addEvent, removeEvent } from './utils/domUtils'
 
 let _nextId = 1
 
@@ -219,6 +219,11 @@ export default class Table extends React.Component {
         this.setScrollTop(lowestScrollTop)
       }
     }
+  }
+
+  componentWillUnmount () {
+    removeEvent(document, 'mousemove', this._onHeaderMouseMove)
+    removeEvent(document, 'mouseup', this._onHeaderMouseUp)
   }
 
   getLowestPossibleScrollTop = () => {
@@ -488,9 +493,63 @@ export default class Table extends React.Component {
     return styles.join('\n')
   }
 
-  _onStartDragging = (columnIndex, event, data, canResizeColumns, canChangeColumnsOrder) => {
-    const target = event.target
-    const cellEl = target.closest('th, td')
+  _onHeaderMouseDown = event => {
+    if (typeof event.button === 'number' && event.button !== 0) {
+      return
+    }
+    console.log(event.target)
+    const { th, columnIndex, data, canResizeColumns, canChangeColumnsOrder } = this._findHeaderTh(event)
+    console.log({ th, columnIndex, x: data && data.x, y: data && data.y, canResizeColumns, canChangeColumnsOrder })
+
+    if (!th) {
+      return
+    }
+
+    this._headerDraggingColumnIndex = columnIndex
+    this._onStartDragging(columnIndex, event, data, th, canResizeColumns, canChangeColumnsOrder)
+
+    addEvent(document, 'mousemove', this._onHeaderMouseMove)
+    addEvent(document, 'mouseup', this._onHeaderMouseUp)
+  }
+
+  _onHeaderMouseMove = event => {
+    const columnIndex = this._headerDraggingColumnIndex
+    const data = offsetXYFromParent(event, this.scrollable)
+    this._onDragging(columnIndex, event, data)
+  }
+
+  _onHeaderMouseUp = event => {
+    const columnIndex = this._headerDraggingColumnIndex
+    const data = offsetXYFromParent(event, this.scrollable)
+    delete this._headerDraggingColumnIndex
+    removeEvent(document, 'mousemove', this._onHeaderMouseMove)
+    removeEvent(document, 'mouseup', this._onHeaderMouseUp)
+    this._onStopDragging(columnIndex, event, data)
+  }
+
+  _findHeaderTh (event) {
+    let th = event.target
+    if (!th || th === this._thead) {
+      return {}
+    }
+    // find th as thead > tr > *
+    while (th && th.parentElement && th.parentElement.parentElement !== this._thead) {
+      th = th.parentElement
+    }
+    if (!th) {
+      return {}
+    }
+    const columnIndex = Array.prototype.indexOf.call(th.parentElement.children, th)
+
+    const data = offsetXYFromParent(event, this.scrollable)
+
+    const canChangeColumnsOrder = typeof this.props.onColumnOrderChange === 'function'
+    const canResizeColumns = typeof this.props.onColumnWidthChange === 'function'
+
+    return { th, columnIndex, data, canChangeColumnsOrder, canResizeColumns }
+  }
+
+  _onStartDragging = (columnIndex, event, data, cellEl, canResizeColumns, canChangeColumnsOrder) => {
     this._draggingCell = cellEl
     this._initialDataX = data.x
 
@@ -610,12 +669,12 @@ export default class Table extends React.Component {
     }
 
     function _cleanup () {
-      target.removeEventListener('mouseup', _onRowMouseUp)
-      target.removeEventListener('mousemove', _onRowMouseMove)
+      removeEvent(target, 'mouseup', _onRowMouseUp)
+      removeEvent(target, 'mousemove', _onRowMouseMove)
     }
 
-    target.addEventListener('mouseup', _onRowMouseUp)
-    target.addEventListener('mousemove', _onRowMouseMove)
+    addEvent(target, 'mouseup', _onRowMouseUp)
+    addEvent(target, 'mousemove', _onRowMouseMove)
   }
 
   renderRows (displayIndexStart, displayIndexEnd) {
@@ -702,7 +761,7 @@ export default class Table extends React.Component {
               canResizeColumns && 'react-infinite-column-resize'
             )
 
-            let cell = (
+            return (
               <Cell
                 renderer={column.headerRenderer}
                 key={columnIndex}
@@ -712,22 +771,6 @@ export default class Table extends React.Component {
                 className={classNames(classes)}
               />
             )
-
-            if (canChangeColumnsOrder || canResizeColumns) {
-              cell = (
-                <DraggableCore
-                  key={columnIndex}
-                  offsetParent={this.scrollable}
-                  onStart={(event, data) => this._onStartDragging(columnIndex, event, data, canResizeColumns, canChangeColumnsOrder)}
-                  onDrag={(event, data) => this._onDragging(columnIndex, event, data)}
-                  onStop={(event, data) => this._onStopDragging(columnIndex, event, data)}
-                >
-                  {cell}
-                </DraggableCore>
-              )
-            }
-
-            return cell
           })}
         </tr>
       )
@@ -821,6 +864,15 @@ export default class Table extends React.Component {
         )
         : null
 
+    const otherTHeadProps = {}
+
+    const canChangeColumnsOrder = typeof this.props.onColumnOrderChange === 'function'
+    const canResizeColumns = typeof this.props.onColumnWidthChange === 'function'
+
+    if (this.props.headerCount > 0 && (canChangeColumnsOrder || canResizeColumns)) {
+      otherTHeadProps.onMouseDown = this._onHeaderMouseDown
+    }
+
     return (
       <div
         id={this._id}
@@ -840,7 +892,10 @@ export default class Table extends React.Component {
           <div className='react-infinite-table-scroll-smoother' />
           <table className={this.props.tableClassName}>
             {this.props.headerCount > 0 && (
-              <thead>
+              <thead
+                ref={el => { this._thead = el }}
+                {...otherTHeadProps}
+              >
                 {this.renderHeaderRows()}
               </thead>
             )}

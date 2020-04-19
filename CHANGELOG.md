@@ -1,5 +1,10 @@
 ## Changelog
 
+##### 1.2.0
+
+- Remove dependency on `react-draggable`
+- Refactoring
+
 ##### 1.1.2
 
 - Bug fixes

@@ -1,6 +1,6 @@
 {
   "name": "react-infinite-table",
-  "version": "1.1.2",
+  "version": "1.2.0",
   "description": "React table with infinite rows and much more!",
   "main": "dist/commonjs/index.js",
   "module": "dist/es/index.js",
@@ -79,8 +79,7 @@
   "dependencies": {
     "@babel/runtime": "^7.9.2",
     "classnames": "^2.2.6",
-    "prop-types": "^15.7.2",
-    "react-draggable": "^4.3.1"
+    "prop-types": "^15.7.2"
   },
   "peerDependencies": {
     "react": "^16.13.1",
