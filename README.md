@@ -269,7 +269,7 @@ const newColumns = reorderColumns(oldColumns, fromIndex, toIndex)
 You should import the `react-infinite-table/dist/style.css` file, or if you use `scss`, you can import the styles as follows:
 
 ```scss
-@import "~react-infinite-table/dist/style.scss";
+@import "~react-infinite-table/src/style.scss";
 ```
 
 If you want to use the "row selection" feature, you should apply a style on the `tr.tr-selected` rows as follows:

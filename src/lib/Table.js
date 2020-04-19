@@ -2,36 +2,13 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import { DraggableCore } from 'react-draggable'
-
 import * as infiniteHelpers from './utils/infiniteHelpers'
 import checkProps from './utils/checkProps'
+import Cell from './Cell'
 
 let _nextId = 1
 
-// Cell wrapper that render only if some props has changed
-/* eslint-disable react/prop-types */
-class Cell extends React.PureComponent {
-  render () {
-    const {
-      renderer,
-      columnIndex,
-      column,
-      rowIndex,
-      rowData,
-      className
-    } = this.props
-    return renderer({
-      columnIndex,
-      column,
-      rowIndex,
-      rowData,
-      className
-    })
-  }
-}
-/* eslint-enable react/prop-types */
-
-export class Table extends React.Component {
+export default class Table extends React.Component {
   static propTypes = {
     height: PropTypes.number.isRequired,
     rowHeight: PropTypes.oneOfType([PropTypes.number, PropTypes.func]).isRequired,
