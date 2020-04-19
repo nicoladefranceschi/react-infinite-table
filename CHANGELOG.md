@@ -1,8 +1,12 @@
 ## Changelog
 
+##### 1.2.3
+
+- Added prop: use `fillTableWidth = true` to grow columns to fill the width of the table
+
 ##### 1.2.2
 
-- fix: handle scroll during column dragging
+- Fix: handle scroll during column dragging
 
 ##### 1.2.1
 

@@ -99,6 +99,7 @@ class App extends React.Component {
     numberOfColumns: N_COLS,
     columns: createColumns(N_COLS),
     fixedColumnsCount: 2,
+    fillTableWidth: false,
     displayBottomUpwards: false,
     infiniteScrolling: false,
     rows: createAllRows(),
@@ -134,6 +135,12 @@ class App extends React.Component {
       displayBottomUpwards,
       rows: rows,
       isInfiniteLoading: false
+    })
+  }
+
+  onFillTableWidth = fillTableWidth => {
+    this.setState({
+      fillTableWidth: fillTableWidth
     })
   }
 
@@ -215,6 +222,7 @@ class App extends React.Component {
       numberOfColumns,
       noRows,
       fixedColumnsCount,
+      fillTableWidth,
       infiniteScrolling,
       displayBottomUpwards,
       rows,
@@ -272,6 +280,15 @@ class App extends React.Component {
             <div className='form-check'>
               <input
                 className='form-check-input' type='checkbox'
+                id='fillTableWidth'
+                checked={fillTableWidth}
+                onChange={e => this.onFillTableWidth(e.target.checked)}
+              />
+              <label htmlFor='fillTableWidth'> Fill table width</label>
+            </div>
+            <div className='form-check'>
+              <input
+                className='form-check-input' type='checkbox'
                 id='infiniteScrolling'
                 checked={infiniteScrolling}
                 onChange={e => this.onInfiniteScrolling(e.target.checked)}
@@ -307,6 +324,7 @@ class App extends React.Component {
             fixedColumnsCount={fixedColumnsCount}
             headerCount={1}
             footerCount={1}
+            fillTableWidth={fillTableWidth}
             noRowsRenderer={() => 'No rows'}
             rowIdKey='i'
             selectedRows={selectedRows}

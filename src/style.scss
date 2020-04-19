@@ -1,5 +1,7 @@
 .react-infinite-table {
   position: relative;
+  display: flex;
+  flex-direction: row;
 
   .react-infinite-table-wrapper {
     max-height: 100%;
@@ -8,6 +10,7 @@
     z-index: 1;
     -webkit-overflow-scrolling: touch;
     overflow: auto;
+    position: relative;
   }
 
   .react-infinite-table-scroll-smoother {
@@ -21,6 +24,10 @@
     // will-change: transform;
   }
 
+  .react-infinite-prevent-table-fill {
+    flex-grow: 1;
+  }
+
   table {
     border-spacing: 0;
     border-collapse: separate;
@@ -28,6 +35,12 @@
     box-sizing: border-box;
     min-height: 100%;
     margin: 0px;
+    max-width: 100%;
+    width: auto;
+
+    &.react-infinite-table-fill {
+      width: 100%;
+    }
   }
 
   td, th {

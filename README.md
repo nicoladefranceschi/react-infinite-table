@@ -85,11 +85,12 @@ const columns = [
   columns={columns}
   headerCount={1}
   footerCount={1}
+  fillTableWidth={true|false}
+  rowIdKey='id'
   noRowsRenderer={() => 'No rows'}
   // keep the first column fixed:
   fixedColumnsCount={1}
   // row selection
-  rowIdKey='id'
   selectedRows={this.state.selectedRows}
   onSelectionChange={selectedRows => { this.setState({selectedRows}) }}
   canSelectMultipleRows={true|false}
@@ -160,6 +161,7 @@ NPM will not automatically install these for you but it will show you a warning 
 | headerCount       | Number    |           | Number of header rows in the `<thead>` section of the table. Default: `headerCount: 1` |
 | footerCount       | Number    |           | Number of footer rows in the `<tfoot>` section of the table. Default: `footerCount: 0` |
 | fixedColumnsCount | Number    |           | Number of columns to keep fixed on the left of the table while scrolling horizontally. Default: `fixedColumnsCount: 0` |
+| fillTableWidth    | Boolean   |           | If `fillTableWidth = true` and the combined width of the columns is less than the table's width, the columns will grow in order to fill the table. Default: `fillTableWidth: false` |
 | noRowsRenderer    | Function  |           | Callback used to render placeholder content when the number of rows is 0. Default: `noRowsRenderer: undefined` - the table will be empty. |
 | rowIdKey          | String    |           | The key used to extract the id of a row from the row's data object. If present, it is used as a `key` for the table's row, otherwise the `rowIndex` is used. **Needed if row selection is enabled**. |
 | selectedRows      | Object    |           | An object with the selected rows' ids as key, and `true` as value. Example: `{ 1: true, 2: true, 5: true }` - the rows with ids 1, 2 and 5 will be selected. Default: `selectedRows: undefined` - no selected rows. |

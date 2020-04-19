@@ -23,6 +23,7 @@ export default class Table extends React.Component {
     headerCount: PropTypes.number,
     footerCount: PropTypes.number,
     fixedColumnsCount: PropTypes.number,
+    fillTableWidth: PropTypes.bool.isRequired,
 
     noRowsRenderer: PropTypes.func,
 
@@ -52,6 +53,7 @@ export default class Table extends React.Component {
     headerCount: 1,
     footerCount: 0,
     fixedColumnsCount: 0,
+    fillTableWidth: false,
 
     canSelectMultipleRows: false,
 
@@ -906,7 +908,11 @@ export default class Table extends React.Component {
           onScroll={this.handleScroll}
         >
           <div className='react-infinite-table-scroll-smoother' />
-          <table className={this.props.tableClassName}>
+          <table className={classNames(
+            this.props.fillTableWidth && 'react-infinite-table-fill',
+            this.props.tableClassName
+          )}
+          >
             {this.props.headerCount > 0 && (
               <thead
                 ref={el => { this._thead = el }}
@@ -945,6 +951,7 @@ export default class Table extends React.Component {
             )}
           </table>
         </div>
+        {!this.props.fillTableWidth && <div className='react-infinite-prevent-table-fill' />}
       </div>
     )
   }
