@@ -20,16 +20,17 @@ export function createInfiniteComputer (rowCount, rowHeight) {
 export function recomputeApertureStateFromOptionsAndScrollTop (
   overscanSize,
   infiniteComputer,
-  scrollTop
+  scrollTop,
+  height
 ) {
-  var blockNumber = overscanSize === 0 ? 0 : Math.floor(scrollTop / overscanSize)
-  var blockStart = overscanSize * blockNumber
-  var blockEnd = blockStart + overscanSize
+  var blockStartNumber = overscanSize === 0 ? 0 : Math.floor(scrollTop / overscanSize)
+  var blockEndNumber = overscanSize === 0 ? 0 : Math.ceil((scrollTop + height) / overscanSize)
+  var blockStart = overscanSize * blockStartNumber
+  var blockEnd = overscanSize * blockEndNumber
+
+  var totalHeight = infiniteComputer.getTotalScrollableHeight()
   var apertureTop = Math.max(0, blockStart - overscanSize)
-  var apertureBottom = Math.min(
-    infiniteComputer.getTotalScrollableHeight(),
-    blockEnd + overscanSize
-  )
+  var apertureBottom = Math.min(totalHeight, blockEnd + overscanSize)
 
   return {
     displayIndexStart: infiniteComputer.getDisplayIndexStart(apertureTop),

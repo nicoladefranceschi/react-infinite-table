@@ -1,5 +1,9 @@
 ## Changelog
 
+##### 1.1.2
+
+- Bug fixes
+
 ##### 1.1.1
 
 - Passthrough style prop to the table container `<div>`

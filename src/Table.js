@@ -127,7 +127,8 @@ export class Table extends React.Component {
       ...infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
         props.overscanSize,
         newState.infiniteComputer,
-        this.getScrollTop()
+        this.getScrollTop(),
+        props.height
       )
     }
 
@@ -182,7 +183,8 @@ export class Table extends React.Component {
       var newApertureState = infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
         this.props.overscanSize,
         this.state.infiniteComputer,
-        this.getScrollTop()
+        this.getScrollTop(),
+        this.props.height
       )
       this.setState(newApertureState)
     }
@@ -263,16 +265,26 @@ export class Table extends React.Component {
     var newApertureState = infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
       this.props.overscanSize,
       this.state.infiniteComputer,
-      scrollTop
+      scrollTop,
+      this.props.height
     )
 
     if (
       this.passedEdgeForInfiniteScroll(scrollTop) &&
       !this.props.isInfiniteLoading
     ) {
-      this.setState(newApertureState)
+      this.updateNewApertureStateIfNeeded(newApertureState)
       this.onInfiniteLoad()
     } else {
+      this.updateNewApertureStateIfNeeded(newApertureState)
+    }
+  }
+
+  updateNewApertureStateIfNeeded (newApertureState) {
+    if (
+      newApertureState.displayIndexStart !== this.state.displayIndexStart ||
+      newApertureState.displayIndexEnd !== this.state.displayIndexEnd
+    ) {
       this.setState(newApertureState)
     }
   }
