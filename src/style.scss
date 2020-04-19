@@ -158,4 +158,27 @@
       margin: 0px;
     }
   }
+
+  &.react-infinite-table-fix-borders {
+    table {
+      thead, tbody, tfoot {
+        td, th {
+          border-left: none;
+
+          &:last-child {
+            border-right: none;
+          }
+        }
+      }
+
+      thead, tbody {
+        td, th {
+          border-top: none;
+        }
+      }
+      tfoot td {
+        border-bottom: none;
+      }
+    }
+  }
 }

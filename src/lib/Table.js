@@ -42,6 +42,7 @@ export default class Table extends React.Component {
     className: PropTypes.string,
     tableClassName: PropTypes.string,
     style: PropTypes.object,
+    fixBorders: PropTypes.bool,
 
     onColumnWidthChange: PropTypes.func,
     onColumnOrderChange: PropTypes.func
@@ -897,6 +898,7 @@ export default class Table extends React.Component {
         className={classNames(
           'react-infinite-table',
           this.props.fillTableWidth && 'react-infinite-table-fill',
+          this.props.fixBorders && 'react-infinite-table-fix-borders',
           this.props.className
         )}
         style={this.props.style}

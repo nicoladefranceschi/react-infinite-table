@@ -324,6 +324,7 @@ class App extends React.Component {
             fixedColumnsCount={fixedColumnsCount}
             headerCount={1}
             footerCount={1}
+            fixBorders
             fillTableWidth={fillTableWidth}
             noRowsRenderer={() => 'No rows'}
             rowIdKey='i'
