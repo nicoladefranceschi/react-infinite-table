@@ -8,6 +8,29 @@ import checkProps from './utils/checkProps'
 
 let _nextId = 1
 
+// Cell wrapper that render only if some props has changed
+/* eslint-disable react/prop-types */
+class Cell extends React.PureComponent {
+  render () {
+    const {
+      renderer,
+      columnIndex,
+      column,
+      rowIndex,
+      rowData,
+      className
+    } = this.props
+    return renderer({
+      columnIndex,
+      column,
+      rowIndex,
+      rowData,
+      className
+    })
+  }
+}
+/* eslint-enable react/prop-types */
+
 export class Table extends React.Component {
   static propTypes = {
     height: PropTypes.number.isRequired,
@@ -655,14 +678,17 @@ export class Table extends React.Component {
               classes.push('is-fixed-left')
             }
 
-            return column.cellRenderer({
-              key: columnIndex,
-              columnIndex,
-              column,
-              rowData,
-              rowIndex,
-              className: classNames(classes)
-            })
+            return (
+              <Cell
+                renderer={column.cellRenderer}
+                key={columnIndex}
+                columnIndex={columnIndex}
+                column={column}
+                rowData={rowData}
+                rowIndex={rowIndex}
+                className={classNames(classes)}
+              />
+            )
           })}
         </tr>
       )
@@ -699,13 +725,16 @@ export class Table extends React.Component {
               canResizeColumns && 'react-infinite-column-resize'
             )
 
-            let cell = column.headerRenderer({
-              key: columnIndex,
-              columnIndex,
-              column,
-              rowIndex,
-              className: classNames(classes)
-            })
+            let cell = (
+              <Cell
+                renderer={column.headerRenderer}
+                key={columnIndex}
+                columnIndex={columnIndex}
+                column={column}
+                rowIndex={rowIndex}
+                className={classNames(classes)}
+              />
+            )
 
             if (canChangeColumnsOrder || canResizeColumns) {
               cell = (
@@ -748,13 +777,16 @@ export class Table extends React.Component {
               classes.push('is-fixed-left')
             }
 
-            return column.footerRenderer({
-              key: columnIndex,
-              columnIndex,
-              column,
-              rowIndex,
-              className: classNames(classes)
-            })
+            return (
+              <Cell
+                renderer={column.footerRenderer}
+                key={columnIndex}
+                columnIndex={columnIndex}
+                column={column}
+                rowIndex={rowIndex}
+                className={classNames(classes)}
+              />
+            )
           })}
         </tr>
       )
