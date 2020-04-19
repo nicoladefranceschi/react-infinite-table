@@ -705,9 +705,11 @@ export default class Table extends React.Component {
       const rowId = rowIdKey && rowData[rowIdKey]
       const isSelected = typeof rowId !== 'undefined' && selectedRows[rowId]
 
+      const rowKey = typeof rowId !== 'undefined' ? rowId : ('rowIndex-' + rowIndex)
+
       const row = (
         <tr
-          key={rowIndex}
+          key={rowKey}
           className={classNames(
             (rowIndex % 2 === 0) ? 'tr-odd' : 'tr-even',
             isSelected && 'tr-selected'
