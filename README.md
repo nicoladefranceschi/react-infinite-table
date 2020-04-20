@@ -49,23 +49,23 @@ const rows = [
 
 const columns = [
   { 
-    cellRenderer: ({ key, columnIndex, column, rowData, rowIndex, className }) => {
+    cellRenderer: ({ columnIndex, column, rowData, rowIndex, className }) => {
       return (
-        <td key={key} className={className}>
+        <td className={className}>
           {rowData.xxx}
         </td>
       )
     },
-    headerRenderer: ({ key, columnIndex, column, className }) => {
+    headerRenderer: ({ columnIndex, column, className }) => {
       return (
-        <th key={key} className={className}>
+        <th className={className}>
           {column.name}
         </th>
       )
     },
-    footerRenderer: ({ key, columnIndex, column, className }) => {
+    footerRenderer: ({ columnIndex, column, className }) => {
       return (
-        <td key={key} className={className}>
+        <td className={className}>
           {column.xxx}
         </td>
       )
@@ -196,19 +196,18 @@ It should implement the following signature:
 
 ```jsx
 ({
-  key: string,
   className: string,
   columnIndex: number,
   column: object,
   rowIndex: number,
   rowData: object
 }) => {
-  return <td key={key} className={className}>{/*...*/}</td>
+  return <td className={className}>{/*...*/}</td>
 }
 ```
 
 You should return a `<td>` node (or a `Component` that renders a `td`) since this node will be rendered in the `tbody > tr` section of the table.
-Always pass the `key` and `className` props.
+You should always pass the `className` prop.
 
 
 #### headerRenderer
@@ -218,17 +217,16 @@ It should implement the following signature:
 
 ```jsx
 ({
-  key: string,
   className: string,
   columnIndex: number,
   column: object
 }) => {
-  return <th key={key} className={className}>{/*...*/}</th>
+  return <th className={className}>{/*...*/}</th>
 }
 ```
 
 You should return a `<th>` node (or a `Component` that renders a `th`) since this node will be rendered in the `thead > tr` section of the table.
-Always pass the `key` and `className` props.
+You should always pass the `className` prop.
 
 
 #### footerRenderer
@@ -238,17 +236,16 @@ It should implement the following signature:
 
 ```jsx
 ({
-  key: string,
   className: string,
   columnIndex: number,
   column: object
 }) => {
-  return <td key={key} className={className}>{/*...*/}</td>
+  return <td className={className}>{/*...*/}</td>
 }
 ```
 
 You should return a `<td>` node (or a `Component` that renders a `td`) since this node will be rendered in the `tfoot > tr` section of the table.
-Always pass the `key` and `className` props.
+You should always pass the `className` prop.
 
 
 ### Utils

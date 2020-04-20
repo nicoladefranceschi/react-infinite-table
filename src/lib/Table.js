@@ -6,7 +6,12 @@ import checkProps from './utils/checkProps'
 import Cell from './Cell'
 import { offsetXYFromParent, addEvent, removeEvent } from './utils/domUtils'
 
-let _nextId = 1
+let _nextTableId = 1
+let _nextTableRowKey = 1
+
+function generateRowKey () {
+  return _nextTableRowKey++
+}
 
 export default class Table extends React.Component {
   static propTypes = {
@@ -68,7 +73,7 @@ export default class Table extends React.Component {
   constructor (props) {
     super(props)
 
-    this._id = 'react-infinite-table-' + _nextId++
+    this._id = 'react-infinite-table-' + _nextTableId++
 
     this.shouldAttachToBottom = props.displayBottomUpwards
 
@@ -683,6 +688,57 @@ export default class Table extends React.Component {
     const selectedRows = this.props.selectedRows || {}
     const rowIdKey = this.props.rowIdKey
 
+    const oldRenderedRowKeys = this._renderedRowKeys || {}
+    this._renderedRowKeys = {}
+
+    // obtain the row's key:
+    // - if the row was render before, use the same key
+    // - otherwise, try to reuse an existing row that was removed from the visible window
+
+    let availableKeys = {}
+    const rowKeyByIndex = {}
+    const exactRowKeyByIndex = {}
+
+    for (const k in oldRenderedRowKeys) {
+      const key = oldRenderedRowKeys[k]
+      availableKeys[key] = true
+    }
+
+    for (let rowIndex = displayIndexStart; rowIndex <= displayIndexEnd; rowIndex++) {
+      const rowData = rowsData[rowIndex]
+      const rowId = rowIdKey && rowData[rowIdKey]
+      const exactRowKey = '' + typeof rowId !== 'undefined' ? rowId : ('rowIndex-' + rowIndex)
+      exactRowKeyByIndex[rowIndex] = exactRowKey
+
+      const rowKey = oldRenderedRowKeys[exactRowKey]
+
+      if (rowKey) {
+        rowKeyByIndex[rowIndex] = rowKey
+        delete availableKeys[rowKey]
+        this._renderedRowKeys[exactRowKey] = rowKey
+      }
+    }
+
+    availableKeys = Object.keys(availableKeys)
+    let nextIndex = 0
+
+    for (let rowIndex = displayIndexStart; rowIndex <= displayIndexEnd; rowIndex++) {
+      if (!rowKeyByIndex[rowIndex]) {
+        let rowKey
+        if (nextIndex < availableKeys.length) {
+          rowKey = availableKeys[nextIndex++]
+        } else {
+          rowKey = generateRowKey()
+        }
+
+        const exactRowKey = exactRowKeyByIndex[rowIndex]
+
+        rowKeyByIndex[rowIndex] = rowKey
+        this._renderedRowKeys[exactRowKey] = rowKey
+      }
+    }
+
+    // render the rows
     for (let rowIndex = displayIndexStart; rowIndex <= displayIndexEnd; rowIndex++) {
       const rowHeight = this.props.rowHeight
 
@@ -691,7 +747,7 @@ export default class Table extends React.Component {
       const rowId = rowIdKey && rowData[rowIdKey]
       const isSelected = typeof rowId !== 'undefined' && selectedRows[rowId]
 
-      const rowKey = typeof rowId !== 'undefined' ? rowId : ('rowIndex-' + rowIndex)
+      const rowKey = rowKeyByIndex[rowIndex]
 
       const row = (
         <tr

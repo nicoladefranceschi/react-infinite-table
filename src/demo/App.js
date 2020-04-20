@@ -14,7 +14,6 @@ const INFINITE_SCROLLING_N_ROWS = 30
 const N_COLS = 20
 
 function cellRenderer ({
-  key,
   columnIndex,
   column,
   rowData,
@@ -22,33 +21,31 @@ function cellRenderer ({
   className
 }) {
   return (
-    <td key={key} className={className}>
+    <td className={className}>
       R:{rowData.i} C:{column.i}
     </td>
   )
 }
 
 function headerRenderer ({
-  key,
   columnIndex,
   column,
   className
 }) {
   return (
-    <th key={key} className={className}>
+    <th className={className}>
       C:{column.i}
     </th>
   )
 }
 
 function footerRenderer ({
-  key,
   columnIndex,
   column,
   className
 }) {
   return (
-    <td key={key} className={className}>
+    <td className={className}>
       C:{column.i}
     </td>
   )
