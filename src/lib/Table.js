@@ -118,18 +118,17 @@ export default class Table extends React.Component {
   ) => {
     checkProps(props)
 
-    var newState = {}
-
-    newState.infiniteComputer = infiniteHelpers.createInfiniteComputer(
+    // TODO: don't recreate if not needed!
+    const infiniteComputer = infiniteHelpers.createInfiniteComputer(
       props.rows.length,
       props.rowHeight
     )
 
-    newState = {
-      ...newState,
+    var newState = {
+      infiniteComputer,
       ...infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
         props.overscanSize,
-        newState.infiniteComputer,
+        infiniteComputer,
         this.getScrollTop(),
         props.height
       )
@@ -138,7 +137,8 @@ export default class Table extends React.Component {
     return newState
   };
 
-  componentWillReceiveProps (nextProps) {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillReceiveProps (nextProps) {
     var newState = this.recomputeInternalStateFromProps(nextProps)
 
     if (this.props.displayBottomUpwards !== nextProps.displayBottomUpwards) {
@@ -148,7 +148,8 @@ export default class Table extends React.Component {
     this.setState(newState)
   }
 
-  componentWillUpdate () {
+  // eslint-disable-next-line camelcase
+  UNSAFE_componentWillUpdate () {
     if (this.props.displayBottomUpwards) {
       this.preservedScrollState = this.getScrollTop() - this.loadingSpinnerHeight
     }
@@ -182,29 +183,12 @@ export default class Table extends React.Component {
       this.lastSelectedRowIndex = -1
     }
 
-    if (rowsChanged) {
-      var newApertureState = infiniteHelpers.recomputeApertureStateFromOptionsAndScrollTop(
-        this.props.overscanSize,
-        this.state.infiniteComputer,
-        this.getScrollTop(),
-        this.props.height
-      )
-      this.setState(newApertureState)
-    }
-
     const isMissingVisibleRows =
       rowsChanged &&
       !this.hasAllVisibleItems() &&
       !this.props.isInfiniteLoading
     if (isMissingVisibleRows) {
       this.onInfiniteLoad()
-    }
-
-    if (
-      this.props.columns !== prevProps.columns ||
-      this.props.fixedColumnsCount !== prevProps.fixedColumnsCount
-    ) {
-      this._style.innerHTML = this.getStyles()
     }
   }
 
@@ -277,14 +261,13 @@ export default class Table extends React.Component {
       this.props.height
     )
 
+    this.updateNewApertureStateIfNeeded(newApertureState)
+
     if (
       this.passedEdgeForInfiniteScroll(scrollTop) &&
       !this.props.isInfiniteLoading
     ) {
-      this.updateNewApertureStateIfNeeded(newApertureState)
       this.onInfiniteLoad()
-    } else {
-      this.updateNewApertureStateIfNeeded(newApertureState)
     }
   }
 
@@ -328,7 +311,7 @@ export default class Table extends React.Component {
     const fromLeft = positions[this._columnOrdering.fromIndex].left + x
     const fromRight = positions[this._columnOrdering.fromIndex].right + x
 
-    this._columnOrdering.toIndex = this._columnOrdering.fromIndex// this.props.columns.length - 1
+    this._columnOrdering.toIndex = this._columnOrdering.fromIndex
     for (let columnIndex = 0; columnIndex < this.props.columns.length; columnIndex++) {
       const pos = positions[columnIndex]
       if (columnIndex < this._columnOrdering.fromIndex) {
@@ -701,7 +684,7 @@ export default class Table extends React.Component {
     const rowIdKey = this.props.rowIdKey
 
     for (let rowIndex = displayIndexStart; rowIndex <= displayIndexEnd; rowIndex++) {
-      const rowHeight = typeof this.props.rowHeight === 'number' ? this.props.rowHeight : this.props.rowHeight(rowIndex)
+      const rowHeight = this.props.rowHeight
 
       const rowData = rowsData[rowIndex]
 
@@ -836,18 +819,43 @@ export default class Table extends React.Component {
   }
 
   render () {
+    const {
+      rows,
+      columns,
+      height,
+      noRowsRenderer,
+      displayBottomUpwards,
+      infiniteLoadBeginEdgeOffset,
+      isInfiniteLoading,
+      getLoadingSpinner,
+      onColumnOrderChange,
+      onColumnWidthChange,
+      headerCount,
+      footerCount,
+      fillTableWidth,
+      fixBorders,
+      className,
+      tableClassName,
+      style
+    } = this.props
+    const {
+      infiniteComputer,
+      displayIndexStart,
+      displayIndexEnd
+    } = this.state
+
     var displayables
-    if (this.props.rows.length > 1) {
+    if (rows.length > 1) {
       displayables = this.renderRows(
-        this.state.displayIndexStart,
-        this.state.displayIndexEnd
+        displayIndexStart,
+        displayIndexEnd
       )
     } else {
-      displayables = this.props.noRowsRenderer ? (
+      displayables = noRowsRenderer ? (
         <tr className='react-infinite-table-loading-no-rows'>
-          <td colSpan={this.props.columns.length}>
+          <td colSpan={columns.length}>
             <div>
-              {this.props.noRowsRenderer()}
+              {noRowsRenderer()}
             </div>
           </td>
         </tr>
@@ -856,28 +864,28 @@ export default class Table extends React.Component {
 
     var infiniteScrollStyles = {}
 
-    var topSpacerHeight = this.state.infiniteComputer.getTopSpacerHeight(
-      this.state.displayIndexStart
+    var topSpacerHeight = infiniteComputer.getTopSpacerHeight(
+      displayIndexStart
     )
-    var bottomSpacerHeight = this.state.infiniteComputer.getBottomSpacerHeight(
-      this.state.displayIndexEnd
+    var bottomSpacerHeight = infiniteComputer.getBottomSpacerHeight(
+      displayIndexEnd
     )
 
     // This asymmetry is due to a reluctance to use CSS to control
     // the bottom alignment
-    if (this.props.displayBottomUpwards) {
-      var heightDifference = this.props.height - this.state.infiniteComputer.getTotalScrollableHeight()
+    if (displayBottomUpwards) {
+      var heightDifference = height - infiniteComputer.getTotalScrollableHeight()
       if (heightDifference > 0) {
         topSpacerHeight = heightDifference - this.loadingSpinnerHeight
       }
     }
 
     var loadingSpinner =
-      this.props.infiniteLoadBeginEdgeOffset !== undefined && this.props.isInfiniteLoading
+      infiniteLoadBeginEdgeOffset !== undefined && isInfiniteLoading
         ? (
           <tr ref={c => { this.loadingSpinner = c }} className='react-infinite-table-loading-row'>
-            <td colSpan={this.props.columns.length}>
-              {this.props.getLoadingSpinner()}
+            <td colSpan={columns.length}>
+              {getLoadingSpinner()}
             </td>
           </tr>
         )
@@ -885,10 +893,10 @@ export default class Table extends React.Component {
 
     const otherTHeadProps = {}
 
-    const canChangeColumnsOrder = typeof this.props.onColumnOrderChange === 'function'
-    const canResizeColumns = typeof this.props.onColumnWidthChange === 'function'
+    const canChangeColumnsOrder = typeof onColumnOrderChange === 'function'
+    const canResizeColumns = typeof onColumnWidthChange === 'function'
 
-    if (this.props.headerCount > 0 && (canChangeColumnsOrder || canResizeColumns)) {
+    if (headerCount > 0 && (canChangeColumnsOrder || canResizeColumns)) {
       otherTHeadProps.onMouseDown = this._onHeaderMouseDown
     }
 
@@ -897,11 +905,11 @@ export default class Table extends React.Component {
         id={this._id}
         className={classNames(
           'react-infinite-table',
-          this.props.fillTableWidth && 'react-infinite-table-fill',
-          this.props.fixBorders && 'react-infinite-table-fix-borders',
-          this.props.className
+          fillTableWidth && 'react-infinite-table-fill',
+          fixBorders && 'react-infinite-table-fix-borders',
+          className
         )}
-        style={this.props.style}
+        style={style}
       >
         <style ref={el => { this._style = el }} dangerouslySetInnerHTML={{ __html: this.getStyles() }} />
         <div
@@ -911,8 +919,8 @@ export default class Table extends React.Component {
           onScroll={this.handleScroll}
         >
           <div className='react-infinite-table-scroll-smoother' />
-          <table className={this.props.tableClassName}>
-            {this.props.headerCount > 0 && (
+          <table className={tableClassName}>
+            {headerCount > 0 && (
               <thead
                 ref={el => { this._thead = el }}
                 {...otherTHeadProps}
@@ -931,9 +939,9 @@ export default class Table extends React.Component {
                 }}
               />
               <tr className='react-infinite-table-spacer' style={{ height: 0 }} /* to fix odd-even numbers */ />
-              {this.props.displayBottomUpwards && loadingSpinner}
+              {displayBottomUpwards && loadingSpinner}
               {displayables}
-              {!this.props.displayBottomUpwards && loadingSpinner}
+              {!displayBottomUpwards && loadingSpinner}
               <tr className='react-infinite-table-spacer' ref={c => { this.bottomSpacer = c }}>
                 <td>
                   <div style={{
@@ -943,7 +951,7 @@ export default class Table extends React.Component {
                 </td>
               </tr>
             </tbody>
-            {this.props.footerCount > 0 && (
+            {footerCount > 0 && (
               <tfoot>
                 {this.renderFooterRows()}
               </tfoot>
