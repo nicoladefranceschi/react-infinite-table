@@ -901,7 +901,7 @@ export default class Table extends React.Component {
     } = this.state
 
     var displayables
-    if (rows.length > 1) {
+    if (rows.length > 0) {
       displayables = this.renderRows(
         displayIndexStart,
         displayIndexEnd
